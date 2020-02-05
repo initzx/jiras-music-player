@@ -1,0 +1,15 @@
+.tabs .button{
+    -fx-background-color:  #2e3440;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: white;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
+}
+.tabs .button:selected {
+    -fx-background-color: #1e2430;
+    -fx-border-color: white #1e2430 white #1e2430;
+    -fx-text-fill: #9c9ca6;
+    -fx-border-width: 0 0.2 1 0.2;
+}

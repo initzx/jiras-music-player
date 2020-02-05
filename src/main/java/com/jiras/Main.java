@@ -20,11 +20,13 @@ public class Main extends Application {
         //The GUI visuals are loaded from the information given in the XML file
         Parent root = loader.load();
 
-        //The stage sets the opening window
+        //The stage sets the opening windowz
         stage.setScene(new Scene(root));
-        stage.setTitle("Beer explorer 2.0");
+        stage.setTitle("Orale!!");
 
         stage.show();
+
+        root.requestLayout();
     }
 
 
