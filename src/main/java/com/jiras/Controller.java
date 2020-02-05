@@ -9,6 +9,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.text.Text;
 
+import javax.annotation.Resources;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -30,7 +31,6 @@ public class Controller  {
 
 
     private static final PseudoClass ACTIVE_PSEUDO_CLASS = PseudoClass.getPseudoClass("selected");
-
     // Add a public no-args constructor
     public Controller() {
     }
@@ -40,6 +40,8 @@ public class Controller  {
         playlistsBtn.setOnAction(this::goToPlaylists);
         albumsBtn.setOnAction(this::goToAlbums);
         songsBtn.setOnAction(this::goToSongs);
+
+        songsBtn.fire();
     }
 
     @FXML
