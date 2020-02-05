@@ -35,18 +35,42 @@
               </rowConstraints>
                <children>
                   <AnchorPane fx:id="image" prefHeight="200.0" prefWidth="200.0" style="-fx-background-color: transparent; -fx-background-size: contain; -fx-background-repeat: no-repeat; -fx-background-image: url('/art.png'); -fx-background-position: center bottom;" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <StackPane alignment="TOP_CENTER" prefHeight="150.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                  <GridPane GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints maxHeight="61.0" minHeight="10.0" prefHeight="16.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="118.0" minHeight="10.0" prefHeight="17.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="158.0" minHeight="10.0" prefHeight="158.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
                      <children>
-                        <Text fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Artist orale">
-                           <font>
-                              <Font size="20.0" />
-                           </font>
-                        </Text>
+                        <StackPane prefHeight="150.0" prefWidth="200.0">
+                           <children>
+                              <Text strokeType="OUTSIDE" strokeWidth="0.0" style="-fx-font-size: 25;" text="Artist orale" />
+                           </children>
+                        </StackPane>
+                        <GridPane GridPane.rowIndex="1">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="32.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-image: url('/before.png'); -fx-background-size: contain; -fx-background-repeat: no-repeat; -fx-background-position: center;" stylesheets="@main.css" />
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-image: url('/play.png'); -fx-background-size: contain; -fx-background-position: center; -fx-background-repeat: no-repeat;" GridPane.columnIndex="1" />
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-image: url('/next.png'); -fx-background-size: contain; -fx-background-repeat: no-repeat; -fx-background-position: center;" GridPane.columnIndex="2" />
+                           </children>
+                        </GridPane>
                      </children>
-                  </StackPane>
+                  </GridPane>
                </children>
             </GridPane>
-         </children></AnchorPane>
+         </children>
+      </AnchorPane>
       <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1">
          <children>
             <GridPane prefHeight="400.0" prefWidth="400.0" style="-fx-background-color: #181818;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
