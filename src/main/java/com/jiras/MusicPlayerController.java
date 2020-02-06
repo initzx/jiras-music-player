@@ -9,6 +9,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -23,7 +24,7 @@ import java.util.ResourceBundle;
 public class MusicPlayerController implements Initializable {
 
     @FXML
-    AnchorPane stage;
+    GridPane stage;
 
     @FXML
     private Button playButton;
