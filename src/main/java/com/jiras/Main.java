@@ -1,12 +1,18 @@
 package com.jiras;
 
+import com.jiras.music.Playlist;
+import com.jiras.music.Track;
+import com.jiras.user.UserData;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.media.Media;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.net.URL;
+import java.nio.file.Paths;
 
 
 public class Main extends Application {
@@ -14,23 +20,33 @@ public class Main extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-
         URL resource = classLoader.getResource("main.fxml");
         FXMLLoader loader = new FXMLLoader(resource);
-        //The GUI visuals are loaded from the information given in the XML file
         Parent root = loader.load();
-
-        //The stage sets the opening windowz
+        injectUserData(loader.getController());
+        //The GUI visuals are loaded from the information given in the XML file
+        //The stage sets the opening window
         stage.setScene(new Scene(root));
-        stage.setTitle("Orale!!");
-
+        stage.setTitle("Jiras MP");
         stage.show();
-
-        root.requestLayout();
     }
 
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private void injectUserData(MusicPlayerController controller) {
+        Playlist playlist = new Playlist("Mac <3");
+        File musicDir = new File("/home/init0/Music/CIRCLES");
+
+        for (String file: musicDir.list()) {
+            Track track = Track.loadTrack(new Media(Paths.get(musicDir+"/"+file).toUri().toString()));
+            playlist.addTrack(track);
+        }
+
+        UserData userData = new UserData();
+        userData.addPlaylist(playlist);
+        controller.injectUserData(userData);
     }
 }
