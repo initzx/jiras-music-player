@@ -6,3 +6,12 @@
 .sidebar {
     -fx-background-color: #121212;
 }
+
+.button {
+    -fx-background-color: transparent;
+}
+
+.controlIcon:hover {
+    -fx-fill: #ffff;
+    -fx-font-size: 25;
+}

@@ -38,7 +38,7 @@ public class Main extends Application {
 
     private void injectUserData(MusicPlayerController controller) {
         Playlist playlist = new Playlist("Mac <3");
-        File musicDir = new File("/home/init0/Music/Circles");
+        File musicDir = new File("/home/init0/Music/Stop Staring at the Shadows");
 
         for (String file: musicDir.list()) {
             Track track = Track.loadTrack(new Media(Paths.get(musicDir+"/"+file).toUri().toString()));

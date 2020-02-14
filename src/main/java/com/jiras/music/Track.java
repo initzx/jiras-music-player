@@ -7,7 +7,7 @@ import javafx.scene.media.MediaPlayer;
 public class Track {
     private Media media;
     private String path;
-    private String name = "Unknown track";
+    private String title = "Unknown track";
     private String year = "Unknown year";
     private String artist = "Unknown artist";
     private String album = "Unknown album";
@@ -24,11 +24,18 @@ public class Track {
         this.media = media;
         this.path = media.getSource();
 
-        media.getMetadata().addListener((MapChangeListener<? super String, ? super Object>) change -> {
-            if (change.wasAdded()) {
-//                this.album = "wew";
-            }
-        });
+//        media.getMetadata().addListener((MapChangeListener<? extends String, ? extends Object>) c -> {
+//            System.out.println(c.getKey() + " : " + c.getValueAdded());
+//            if (c.wasAdded()) {
+//                if ("artist".equals(c.getKey())) {
+//                    artist = c.getValueAdded().toString();
+//                } else if ("title".equals(c.getKey())) {
+//                    title = c.getValueAdded().toString();
+//                } else if ("album".equals(c.getKey())) {
+//                    album = c.getValueAdded().toString();
+//                }
+//            }
+//        });
     }
 
     public static Track loadTrack(Media media) {
@@ -39,8 +46,8 @@ public class Track {
         return new MediaPlayer(media);
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
     public String getPath() {
