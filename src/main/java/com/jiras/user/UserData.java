@@ -15,6 +15,14 @@ public class UserData {
         this.albums = new HashMap<>();
     }
 
+    public Playlist[] getAllPlaylists() {
+        return playlists.values().toArray(new Playlist[0]);
+    }
+
+    public Album[] getAllAlbums() {
+        return albums.values().toArray(new Album[0]);
+    }
+
     public Playlist getPlaylist(String name) {
         return playlists.get(name);
     }

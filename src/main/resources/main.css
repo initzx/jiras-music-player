@@ -15,3 +15,28 @@
     -fx-fill: #ffff;
     -fx-font-size: 25;
 }
+
+.progress-bar > .bar {
+    -fx-background-insets: 1 1 2 1;
+    -fx-padding: 0.20em;
+    -fx-accent: #424242;
+    -fx-progress-color: #b3b3b3;
+}
+
+.list-view {
+    -fx-background-color: transparent;
+}
+
+.list-cell:odd, .list-cell:even {
+    -fx-background-color: #121212;
+    -fx-text-fill: #b3b3b3;
+}
+
+
+.list-cell:hover, .list-cell:selected{
+    -fx-text-fill: #ffff;
+}
+
+.list-view .scroll-bar:horizontal {
+    -fx-scale-x: 0;
+}
