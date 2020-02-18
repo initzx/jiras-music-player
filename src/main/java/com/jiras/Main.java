@@ -1,8 +1,8 @@
 package com.jiras;
 
 import com.jiras.music.Album;
-import com.jiras.music.Playlist;
 import com.jiras.music.Track;
+import com.jiras.sql.Database;
 import com.jiras.user.UserData;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -14,11 +14,12 @@ import javafx.stage.Stage;
 import java.io.File;
 import java.net.URL;
 import java.nio.file.Paths;
+import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Objects;
 
 
 public class Main extends Application {
+    Database db;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -39,7 +40,7 @@ public class Main extends Application {
         launch(args);
     }
 
-    private void loadController(MusicPlayerController controller) {
+    private void loadController(MusicPlayerController controller) throws SQLException {
 //        Playlist playlist = new Playlist("Mac <3");
 //        File musicDir = new File("/home/init0/Music/Stop Staring at the Shadows");
 //
@@ -50,8 +51,10 @@ public class Main extends Application {
 //            Track track = Track.loadTrack(new Media(Paths.get(musicDir+"/"+file).toUri().toString()));
 //            playlist.addTrack(track);
 //        }
-        UserData userData = new UserData();
-        ArrayList<Album> albums = recursiveAddFromDir("/home/init0/Music");
+        db = new Database();
+
+        UserData userData = new UserData(db);
+        ArrayList<Album> albums = recursiveAddFromDir("/home/rasmus/Music");
         for (Album album : albums)
             userData.addAlbum(album);
 
