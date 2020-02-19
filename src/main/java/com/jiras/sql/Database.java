@@ -10,21 +10,38 @@ import java.sql.*;
 public class Database {
     Connection conn;
     public ResultSet selectAll(String sql) {
-        try(Statement stmt = conn.createStatement()) {
+        try {
+            Statement stmt = conn.createStatement();
             return stmt.executeQuery(sql);
         } catch (SQLException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }
     public ResultSet executeStmt(PreparedStatement stmt) throws SQLException {
         return stmt.executeQuery();
     }
-    public int executeUpdate(PreparedStatement stmt) throws SQLException {
-        return stmt.executeUpdate(stmt.toString(), Statement.RETURN_GENERATED_KEYS);
+    public int executeUpdate(PreparedStatement stmt) {
+        try {
+            int affectedRows = stmt.executeUpdate();
+            if(affectedRows == 0) {
+                throw new SQLException("Insert failed");
+            }
+            try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return (int) generatedKeys.getLong(1);
+                } else {
+                    throw new SQLException("Getting inserted id failed");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
     public PreparedStatement initQuery(String sql) {
-        try(PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try {
+            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             return stmt;
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -66,12 +83,11 @@ public class Database {
                     + "    path text NOT NULL,\n"
                     + "    name text,\n"
                     + "    duration integer,\n"
-                    + "    description text,\n"
-                    + "    year integer,\n"
+                    + "    year text,\n"
                     + "    artist text NOT NULL,\n"
                     + "    albumID integer DEFAULT NULL\n"
                     + ");");
-            execute("CREATE TABLE IF NOT EXISTS musicFolder (\n"
+            execute("CREATE TABLE IF NOT EXISTS musicFolders (\n"
                     + "    id integer PRIMARY KEY,\n"
                     + "    path text NOT NULL,\n"
                     + "    lastSync DATETIME DEFAULT CURRENT_TIMESTAMP\n"
@@ -80,14 +96,6 @@ public class Database {
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
         }
 
     }

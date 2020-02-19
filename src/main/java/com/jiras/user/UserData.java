@@ -24,6 +24,7 @@ public class UserData {
         this.albums = new HashMap<>();
         //sync folders with songs to load
         ResultSet syncFolders = db.selectAll("SELECT path FROM musicFolders");
+        System.out.println(syncFolders.getFetchSize());
         while(syncFolders.next()) {
             String path = syncFolders.getString("path");
             ArrayList<Album> albums = recursiveAlbums(path);
@@ -31,16 +32,32 @@ public class UserData {
                 int albumID;
                 //check if album exists
                 PreparedStatement albumStmt = db.initQuery("SELECT id FROM albums WHERE name = ?");
-                albumStmt.setString(0, album.getName());
+                albumStmt.setString(1, album.getName());
                 ResultSet duplicates = db.executeStmt(albumStmt);
-                if(duplicates == null) {
+                if(duplicates.isClosed()) {
+                    //insert album
                     PreparedStatement insertStmt = db.initQuery("INSERT INTO albums(name) VALUES (?)");
-                    insertStmt.setString(0, album.getName());
+                    insertStmt.setString(1, album.getName());
                     albumID = db.executeUpdate(insertStmt);
                 } else {
+                    //reuse old
                     albumID = duplicates.getInt("id");
                 }
                 for(Track track : album.getTracks()) {
+                    //check if song exists
+                    PreparedStatement songStmt = db.initQuery("SELECT id FROM songs WHERE path = ?");
+                    songStmt.setString(1, track.getPath());
+                    ResultSet songDuplicates = db.executeStmt(songStmt);
+                    if(songDuplicates.isClosed()) {
+                        //insert song
+                        PreparedStatement insertStmt = db.initQuery("INSERT INTO songs(name, path, year, artist, albumID) VALUES (?, ?, ?, ?, ?)");
+                        insertStmt.setString(1, track.getTitle());
+                        insertStmt.setString(2, track.getPath());
+                        insertStmt.setString(3, track.getYear());
+                        insertStmt.setString(4, track.getArtist());
+                        insertStmt.setInt(5, albumID);
+                        db.executeUpdate(insertStmt);
+                    }
                 }
             }
         }
