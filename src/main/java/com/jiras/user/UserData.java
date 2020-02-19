@@ -2,11 +2,16 @@ package com.jiras.user;
 
 import com.jiras.music.Album;
 import com.jiras.music.Playlist;
+import com.jiras.music.Track;
 import com.jiras.sql.Database;
+import javafx.scene.media.Media;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserData {
@@ -18,11 +23,30 @@ public class UserData {
         this.playlists = new HashMap<>();
         this.albums = new HashMap<>();
         //sync folders with songs to load
-        ResultSet syncFolders = db.selectAll("SELECT path, albumID FROM musicFolders");
-        //while(syncFolders.next()) {
-            //read stuff about the song
-            //Insert the songs into the database if path isn't already in there
-        //}
+        ResultSet syncFolders = db.selectAll("SELECT path FROM musicFolders");
+        while(syncFolders.next()) {
+            String path = syncFolders.getString("path");
+            ArrayList<Album> albums = recursiveAlbums(path);
+            for(Album album : albums) {
+                int albumID;
+                //check if album exists
+                PreparedStatement albumStmt = db.initQuery("SELECT id FROM albums WHERE name = ?");
+                albumStmt.setString(0, album.getName());
+                ResultSet duplicates = db.executeStmt(albumStmt);
+                if(duplicates == null) {
+                    PreparedStatement insertStmt = db.initQuery("INSERT INTO albums(name) VALUES (?)");
+                    insertStmt.setString(0, album.getName());
+                    albumID = db.executeUpdate(insertStmt);
+                } else {
+                    albumID = duplicates.getInt("id");
+                }
+                for(Track track : album.getTracks()) {
+                }
+            }
+        }
+
+
+        //load all tracks into Track objects with list
 
         //initialize albums by selecting all albums
         //loop the albums and find all songs connected to that album, initialize the song and add it to the album list
@@ -58,5 +82,24 @@ public class UserData {
 
     public void addAlbum(Album album) {
         this.albums.put(album.getName(), album);
+    }
+
+    public ArrayList<Album> recursiveAlbums(String path) {
+        File musicDir = new File(path);
+        ArrayList<Album> albums = new ArrayList<>();
+
+        Album album = new Album(musicDir.getName(), musicDir.getPath());
+        for (File file : musicDir.listFiles()) {
+            if (file.isDirectory()) {
+                albums.addAll(recursiveAlbums(file.getAbsolutePath()));
+                continue;
+            }
+            album.addTrack(Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString())));
+        }
+
+        if (album.getTracks().length != 0)
+            albums.add(album);
+
+        return albums;
     }
 }

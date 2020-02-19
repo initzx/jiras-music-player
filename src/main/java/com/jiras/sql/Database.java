@@ -17,6 +17,12 @@ public class Database {
         }
         return null;
     }
+    public ResultSet executeStmt(PreparedStatement stmt) throws SQLException {
+        return stmt.executeQuery();
+    }
+    public int executeUpdate(PreparedStatement stmt) throws SQLException {
+        return stmt.executeUpdate(stmt.toString(), Statement.RETURN_GENERATED_KEYS);
+    }
     public PreparedStatement initQuery(String sql) {
         try(PreparedStatement stmt = conn.prepareStatement(sql)) {
             return stmt;
@@ -65,9 +71,8 @@ public class Database {
                     + "    artist text NOT NULL,\n"
                     + "    albumID integer DEFAULT NULL\n"
                     + ");");
-            execute("CREATE TABLE IF NOT EXISTS musicFolders (\n"
+            execute("CREATE TABLE IF NOT EXISTS musicFolder (\n"
                     + "    id integer PRIMARY KEY,\n"
-                    + "    albumID integer DEFAULT NULL,\n"
                     + "    path text NOT NULL,\n"
                     + "    lastSync DATETIME DEFAULT CURRENT_TIMESTAMP\n"
                     + ");");
