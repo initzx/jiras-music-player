@@ -24,19 +24,24 @@ public class Queue<T> {
     }
 
     public T next() {
-        T item = queue.get(head);
-        head = Math.min(head+1, queue.size()-1);
+        T item = head >= queue.size() ? null : queue.get(head);
+        head = Math.max(Math.min(head+1, queue.size()-1), 0);
         return item;
     }
 
     public T prev() {
         head = Math.max(head-2, 0);
-        T item = queue.get(head);
+        T item = head >= queue.size() ? null : queue.get(head);;
         head++;
         return item;
     }
 
-    public ListIterator<T> getIterator() {
-        return queue.listIterator();
+    public boolean isAtEnd() {
+        return head == queue.size();
+    }
+
+    public void reset() {
+        queue.clear();
+        head = 0;
     }
 }

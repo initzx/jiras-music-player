@@ -111,12 +111,22 @@ public class MusicPlayerController implements Initializable {
     }
 
     private void play(Track track) {
+        if (player != null && player.getStatus().equals(MediaPlayer.Status.PLAYING)) {
+            this.queue.add(track);
+            return;
+        }
+
         current = track;
         player = new MediaPlayer(current.getMedia());
         player.setOnPlaying(this::onPlaying);
         player.setOnStopped(this::onStopped);
         player.setOnEndOfMedia(this::onEnd);
         player.play();
+        playPause();
+    }
+
+    private void queue(Track track) {
+        this.queue.add(track);
     }
 
     private void onPlaying() {
@@ -134,22 +144,36 @@ public class MusicPlayerController implements Initializable {
 
     private void onStopped() {
         System.out.println("onStopped " + current.getTitle());
-//        current = next;
-//        next = null;
-//        readyCurrent();
-//        player.play();
-        play(next);
+        if (next != null)
+            play(next);
+        else
+            endQueue();
     }
 
     private void onEnd() {
         System.out.println("ended " + current.getTitle());
-//        current = queue.next();
-//        readyCurrent();
-//        player.play();
-        play(queue.next());
+        if (!queue.isAtEnd())
+            play(queue.next());
+        else
+            endQueue();
+    }
+
+    private void endQueue() {
+        player = null;
+        queue.reset();
+        resetGUI();
+    }
+
+    private void resetGUI() {
+        timeElapsed.setText("00:00");
+        duration.setText("00:00");
+        artist.setText("");
+        trackTitle.setText("");
     }
 
     private void stop() {
+        if (player == null)
+            return;
         System.out.println("stopped " + current.getTitle());
         player.stop();
     }
@@ -163,6 +187,8 @@ public class MusicPlayerController implements Initializable {
 
     @FXML
     private void playPause() {
+        if (player == null)
+            return;
         MediaPlayer.Status status = player.getStatus();
         boolean notPaused = status == MediaPlayer.Status.PLAYING;
 
