@@ -1,13 +1,11 @@
 package com.jiras;
 
-import com.jiras.music.Album;
 import com.jiras.music.Playlist;
 import com.jiras.music.Queue;
 import com.jiras.music.Track;
 import com.jiras.user.UserData;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,22 +15,18 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
-import javafx.util.Duration;
 
 import java.net.URL;
-import java.util.ListIterator;
 import java.util.ResourceBundle;
 
 public class MusicPlayerController implements Initializable {
 
     @FXML
-    private ListView<Album> albums;
+    private ListView<Playlist> playlists;
     @FXML
     private TableView<Track> tracks;
 
@@ -44,7 +38,7 @@ public class MusicPlayerController implements Initializable {
     private TableColumn<Track, String> durationCol;
 
     @FXML
-    private Text albumDesc;
+    private Text playlistDesc;
     @FXML
     private Text artistDesc;
 
@@ -72,7 +66,7 @@ public class MusicPlayerController implements Initializable {
 
     private MediaPlayer player;
 
-    private Album currentSelAlbum;
+    private Playlist currentSelPlaylist;
 
     public void injectUserData(UserData userData) {
         this.userData = userData;
@@ -81,16 +75,16 @@ public class MusicPlayerController implements Initializable {
     public void initializePlayer() {
         System.out.println("Loading playlist");
         initializeTracksTable();
-        for (Album album : this.userData.getAllAlbums()) {
-            albums.getItems().add(album);
+        for (Playlist playlist : this.userData.getAllPlaylists()) {
+            playlists.getItems().add(playlist);
         }
-        albums.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Album>) change -> {
-            Album album = change.getList().get(0);
-            System.out.println(album);
-            albumDesc.setText(album.getName());
-            artistDesc.setText(album.getTracks()[0].getArtist());
-            tracks.getItems().setAll(album.getTracks());
-            currentSelAlbum = album;
+        playlists.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Playlist>) change -> {
+            Playlist playlist = change.getList().get(0);
+            System.out.println(playlist);
+            playlistDesc.setText(playlist.getName());
+            artistDesc.setText(playlist.getTracks()[0].getArtist());
+            tracks.getItems().setAll(playlist.getTracks());
+            currentSelPlaylist = playlist;
         });
 
 //        Playlist playlist = this.userData.getPlaylist("Mac <3");

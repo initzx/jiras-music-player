@@ -1,8 +1,7 @@
 package com.jiras;
 
-import com.jiras.music.Album;
+import com.jiras.music.Playlist;
 import com.jiras.music.Track;
-import com.jiras.sql.Database;
 import com.jiras.user.UserData;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -19,7 +18,6 @@ import java.util.ArrayList;
 
 
 public class Main extends Application {
-    Database db;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -41,44 +39,32 @@ public class Main extends Application {
     }
 
     private void loadController(MusicPlayerController controller) throws SQLException {
-//        Playlist playlist = new Playlist("Mac <3");
-//        File musicDir = new File("/home/init0/Music/Stop Staring at the Shadows");
-//
-//        for (File file: Objects.requireNonNull(musicDir.listFiles())) {
-//            if (file.isDirectory()) {
-//
-//            }
-//            Track track = Track.loadTrack(new Media(Paths.get(musicDir+"/"+file).toUri().toString()));
-//            playlist.addTrack(track);
-//        }
-        db = new Database();
-
-        UserData userData = new UserData(db);
-        ArrayList<Album> albums = recursiveAddFromDir("/home/rasmus/Music");
-        for (Album album : albums)
-            userData.addAlbum(album);
+        UserData userData = new UserData();
+        ArrayList<Playlist> playlists = recursiveAddFromDir("/home/init0/Music");
+        for (Playlist playlist : playlists)
+            userData.addPlaylist(playlist);
 
 //        userData.addPlaylist(playlist);
         controller.injectUserData(userData);
         controller.initializePlayer();
     }
 
-    public ArrayList<Album> recursiveAddFromDir(String path) {
+    public ArrayList<Playlist> recursiveAddFromDir(String path) {
         File musicDir = new File(path);
-        ArrayList<Album> albums = new ArrayList<>();
+        ArrayList<Playlist> playlists = new ArrayList<>();
 
-        Album album = new Album(musicDir.getName(), musicDir.getPath());
+        Playlist playlist = new Playlist(musicDir.getName(), musicDir.getPath());
         for (File file : musicDir.listFiles()) {
             if (file.isDirectory()) {
-                albums.addAll(recursiveAddFromDir(file.getAbsolutePath()));
+                playlists.addAll(recursiveAddFromDir(file.getAbsolutePath()));
                 continue;
             }
-            album.addTrack(Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString())));
+            playlist.addTrack(Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString())));
         }
 
-        if (album.getTracks().length != 0)
-            albums.add(album);
+        if (playlist.getTracks().length != 0)
+            playlists.add(playlist);
 
-        return albums;
+        return playlists;
     }
 }
