@@ -25,13 +25,13 @@ public class Queue<T> {
 
     public T next() {
         T item = head >= queue.size() ? null : queue.get(head);
-        head = Math.max(Math.min(head+1, queue.size()-1), 0);
+        head++;
         return item;
     }
 
     public T prev() {
-        head = Math.max(head-2, 0);
-        T item = head >= queue.size() ? null : queue.get(head);;
+        head -= 2;
+        T item = head >= queue.size() || head < 0 ? null : queue.get(head);
         head++;
         return item;
     }

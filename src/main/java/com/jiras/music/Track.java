@@ -8,7 +8,6 @@ public class Track {
 
     private Media media;
     private String path;
-    private MediaPlayer mediaPlayer;
     private Integer trackNum = 0;
     private String title = "Unknown track";
     private String year = "Unknown year";
@@ -25,7 +24,6 @@ public class Track {
 
     private Track(Media media) {
         this.media = media;
-        this.mediaPlayer = new MediaPlayer(media);
         this.path = media.getSource();
 
         media.getMetadata().addListener((MapChangeListener<? super String, ? super Object>) c -> {
@@ -53,10 +51,6 @@ public class Track {
 
     public static Track loadTrack(Media media) {
         return new Track(media);
-    }
-
-    public MediaPlayer getMediaPlayer() {
-        return mediaPlayer;
     }
 
     public Media getMedia() {

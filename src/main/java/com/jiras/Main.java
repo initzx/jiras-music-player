@@ -39,32 +39,8 @@ public class Main extends Application {
     }
 
     private void loadController(MusicPlayerController controller) throws SQLException {
-        UserData userData = new UserData();
-        ArrayList<Playlist> playlists = recursiveAddFromDir("/home/init0/Music");
-        for (Playlist playlist : playlists)
-            userData.addPlaylist(playlist);
-
-//        userData.addPlaylist(playlist);
+        UserData userData = UserData.createUserDataFromConf();
         controller.injectUserData(userData);
         controller.initializePlayer();
-    }
-
-    public ArrayList<Playlist> recursiveAddFromDir(String path) {
-        File musicDir = new File(path);
-        ArrayList<Playlist> playlists = new ArrayList<>();
-
-        Playlist playlist = new Playlist(musicDir.getName(), musicDir.getPath());
-        for (File file : musicDir.listFiles()) {
-            if (file.isDirectory()) {
-                playlists.addAll(recursiveAddFromDir(file.getAbsolutePath()));
-                continue;
-            }
-            playlist.addTrack(Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString())));
-        }
-
-        if (playlist.getTracks().length != 0)
-            playlists.add(playlist);
-
-        return playlists;
     }
 }

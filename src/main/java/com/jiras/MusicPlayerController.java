@@ -2,12 +2,12 @@ package com.jiras;
 
 import com.jiras.music.Playlist;
 import com.jiras.music.Queue;
+import com.jiras.music.StopReason;
 import com.jiras.music.Track;
 import com.jiras.user.UserData;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.ListChangeListener;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.ListView;
@@ -18,8 +18,12 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
+import javafx.scene.paint.Stop;
 import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
+import javafx.util.Duration;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ResourceBundle;
 
@@ -27,20 +31,18 @@ public class MusicPlayerController implements Initializable {
 
     @FXML
     private ListView<Playlist> playlists;
+
     @FXML
     private TableView<Track> tracks;
 
     @FXML
     private TableColumn<Track, String> artistCol;
     @FXML
+    private TableColumn<Track, String> albumCol;
+    @FXML
     private TableColumn<Track, String> trackCol;
     @FXML
     private TableColumn<Track, String> durationCol;
-
-    @FXML
-    private Text playlistDesc;
-    @FXML
-    private Text artistDesc;
 
     @FXML
     private GridPane stage;
@@ -63,10 +65,19 @@ public class MusicPlayerController implements Initializable {
     private MediaView mediaView;
     private Track current;
     private Track next;
+    private StopReason stopReason;
 
     private MediaPlayer player;
 
     private Playlist currentSelPlaylist;
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        queue = new Queue<>();
+        mediaView = new MediaView();
+        stopReason = StopReason.NONE;
+        stage.getChildren().add(mediaView);
+    }
 
     public void injectUserData(UserData userData) {
         this.userData = userData;
@@ -74,56 +85,74 @@ public class MusicPlayerController implements Initializable {
 
     public void initializePlayer() {
         System.out.println("Loading playlist");
+        playlists.getItems().clear();
+        tracks.getItems().clear();
         initializeTracksTable();
-        for (Playlist playlist : this.userData.getAllPlaylists()) {
+        for (Playlist playlist : userData.getAllPlaylists()) {
             playlists.getItems().add(playlist);
         }
         playlists.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Playlist>) change -> {
             Playlist playlist = change.getList().get(0);
             System.out.println(playlist);
-            playlistDesc.setText(playlist.getName());
-            artistDesc.setText(playlist.getTracks()[0].getArtist());
             tracks.getItems().setAll(playlist.getTracks());
             currentSelPlaylist = playlist;
         });
-
-//        Playlist playlist = this.userData.getPlaylist("Mac <3");
-//        queue.addAll(playlist.getTracks());
-//        play(queue.next());
     }
 
     private void initializeTracksTable() {
         artistCol.setCellValueFactory(new PropertyValueFactory<>("artist"));
+        albumCol.setCellValueFactory(new PropertyValueFactory<>("album"));
         trackCol.setCellValueFactory(new PropertyValueFactory<>("title"));
         durationCol.setCellValueFactory(trackStringCellDataFeatures -> {
             int seconds = (int) Math.round(trackStringCellDataFeatures.getValue().getMedia().getDuration().toSeconds());
             return new ReadOnlyStringWrapper(String.format("%02d:%02d", seconds / 60, seconds % 60));
         });
         tracks.getSelectionModel().selectedItemProperty().addListener(change -> {
-            play(tracks.getSelectionModel().getSelectedItem());
+            Track selected = tracks.getSelectionModel().getSelectedItem();
+            if (selected == null)
+                return;
+
+            if (player != null) {
+                queue.reset();
+                stop(StopReason.REPLACED);
+            }
+            Track[] tracks = currentSelPlaylist.getTracks();
+            boolean add = false;
+            for (Track track : tracks) {
+                if (!add && track == selected) {
+                    add = true;
+                }
+                if (add) {
+                    queue(track);
+                }
+            }
         });
     }
 
     private void play(Track track) {
-        if (player != null && player.getStatus().equals(MediaPlayer.Status.PLAYING)) {
-            this.queue.add(track);
-            return;
-        }
-
         current = track;
         player = new MediaPlayer(current.getMedia());
         player.setOnPlaying(this::onPlaying);
-        player.setOnStopped(this::onStopped);
-        player.setOnEndOfMedia(this::onEnd);
+        player.setOnPaused(this::onPaused);
+//        player.setOnStopped(this::onStopped);
+//        player.setOnEndOfMedia(this::onEnd);
+        player.setOnStopped(this::onFinished);
+        player.setOnEndOfMedia(this::onFinished);
         player.play();
-        playPause();
     }
 
     private void queue(Track track) {
         this.queue.add(track);
+
+        if (player == null || stopReason == StopReason.REPLACED ) {
+            if (stopReason == StopReason.REPLACED)
+                stopReason = StopReason.CONTINUE;
+            play(queue.next());
+        }
     }
 
     private void onPlaying() {
+        playIcon.setGlyphName("PAUSE");
         System.out.println("playing " + current.getTitle());
         int seconds = (int) Math.round(player.getTotalDuration().toSeconds());
         duration.setText(String.format("%02d:%02d", seconds / 60, seconds % 60));
@@ -136,47 +165,69 @@ public class MusicPlayerController implements Initializable {
         });
     }
 
-    private void onStopped() {
-        System.out.println("onStopped " + current.getTitle());
-        if (next != null)
-            play(next);
-        else
-            endQueue();
+    private void onPaused() {
+        playIcon.setGlyphName("PLAY");
     }
 
-    private void onEnd() {
-        System.out.println("ended " + current.getTitle());
-        if (!queue.isAtEnd())
-            play(queue.next());
-        else
-            endQueue();
+//    private void onStopped() {
+//        System.out.println("onStopped " + current.getTitle());
+//        if (next != null)
+//            play(next);
+//        else
+//            endQueue();
+//    }
+//
+//    private void onEnd() {
+//        System.out.println("ended " + current.getTitle());
+//        if (!queue.isAtEnd())
+//            play(queue.next());
+//        else
+//            endQueue();
+//    }
+
+    private void onFinished() {
+        switch (stopReason) {
+            case SKIPPED:
+                stopReason = StopReason.NONE;
+                if (next != null) {
+                    play(next);
+                    return;
+                }
+                break;
+            case CONTINUE:
+                stopReason = StopReason.NONE;
+                return;
+            default:
+                if (!queue.isAtEnd()) {
+                    play(queue.next());
+                    return;
+                }
+                break;
+        }
+        endQueue();
     }
 
     private void endQueue() {
         player = null;
         queue.reset();
-        resetGUI();
+        resetPlayerGUI();
     }
 
-    private void resetGUI() {
+    private void resetPlayerGUI() {
         timeElapsed.setText("00:00");
         duration.setText("00:00");
+        progressBar.setProgress(0);
         artist.setText("");
         trackTitle.setText("");
+        playIcon.setGlyphName("PLAY");
     }
 
-    private void stop() {
+    private void stop(StopReason reason) {
         if (player == null)
             return;
         System.out.println("stopped " + current.getTitle());
+        stopReason = reason;
         player.stop();
-    }
-
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        queue = new Queue<>();
-        mediaView = new MediaView();
-        stage.getChildren().add(mediaView);
     }
 
     @FXML
@@ -188,27 +239,37 @@ public class MusicPlayerController implements Initializable {
 
         if (notPaused) {
             player.pause();
-            playIcon.setGlyphName("PLAY");
         } else {
             player.play();
-            playIcon.setGlyphName("PAUSE");
         }
     }
 
     @FXML
-    private void start(ActionEvent event) {
-
-    }
-
-    @FXML
     private void skip() {
+        if (player == null)
+            return;
         next = queue.next();
-        stop();
+        stop(StopReason.SKIPPED);
     }
 
     @FXML
     private void prev() {
+        if (player == null)
+            return;
+        if (player.getCurrentTime().greaterThan(new Duration(1000))) {
+            player.seek(Duration.ZERO);
+            return;
+        }
         next = queue.prev();
-        stop();
+        stop(StopReason.SKIPPED);
+    }
+
+    @FXML
+    private void importSongs() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Open Resource File");
+        File selected = directoryChooser.showDialog(stage.getScene().getWindow());
+        userData = UserData.createUserDataFromPath(selected.getPath());
+        initializePlayer();
     }
 }
