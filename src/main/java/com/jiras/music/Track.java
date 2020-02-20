@@ -4,6 +4,8 @@ import javafx.collections.MapChangeListener;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+import java.util.ArrayList;
+
 public class Track {
 
     private Media media;
@@ -13,20 +15,21 @@ public class Track {
     private String title = "Unknown track";
     private String year = "Unknown year";
     private String artist = "Unknown artist";
-    private String album = "Unknown album";
+    private ArrayList<Integer> addedPlaylists = new ArrayList<>();
 
-//    private Track(Media media, String year, String artist, String album) {
-//        this.media = media;
-//        this.path = media.getSource();
-//        this.year = year;
-//        this.artist = artist;
-//        this.album = album;
-//    }
+    public Track(Media media, String title, String year, String artist) {
+        this.media = media;
+        this.path = media.getSource();
+        this.title = title;
+        this.year = year;
+        this.artist = artist;
+    }
 
     private Track(Media media) {
         this.media = media;
         this.mediaPlayer = new MediaPlayer(media);
         this.path = media.getSource();
+
 
         media.getMetadata().addListener((MapChangeListener<? super String, ? super Object>) c -> {
             if (c.wasAdded()) {
@@ -36,9 +39,6 @@ public class Track {
                         break;
                     case "title":
                         title = c.getValueAdded().toString();
-                        break;
-                    case "album":
-                        album = c.getValueAdded().toString();
                         break;
                     case "year":
                         year = c.getValueAdded().toString();
@@ -55,6 +55,15 @@ public class Track {
         return new Track(media);
     }
 
+    public void addPlaylist(Integer playlistID) {
+        addedPlaylists.add(playlistID);
+    }
+    public void removePlaylist(Integer playlistID) {
+        addedPlaylists.remove(Integer.valueOf(playlistID));
+    }
+    public boolean inPlaylist(Integer playlistID) {
+        return addedPlaylists.contains(playlistID);
+    }
     public MediaPlayer getMediaPlayer() {
         return mediaPlayer;
     }
@@ -79,7 +88,4 @@ public class Track {
         return artist;
     }
 
-    public String getAlbum() {
-        return album;
-    }
 }

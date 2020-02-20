@@ -12,6 +12,8 @@ import javafx.scene.media.Media;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -40,7 +42,7 @@ public class Main extends Application {
         launch(args);
     }
 
-    private void loadController(MusicPlayerController controller) throws SQLException {
+    private void loadController(MusicPlayerController controller) throws SQLException, MalformedURLException, URISyntaxException {
 //        Playlist playlist = new Playlist("Mac <3");
 //        File musicDir = new File("/home/init0/Music/Stop Staring at the Shadows");
 //
@@ -54,31 +56,8 @@ public class Main extends Application {
         db = new Database();
 
         UserData userData = new UserData(db);
-        ArrayList<Album> albums = recursiveAddFromDir("/home/rasmus/Music");
-        for (Album album : albums)
-            userData.addAlbum(album);
-
 //        userData.addPlaylist(playlist);
         controller.injectUserData(userData);
         controller.initializePlayer();
-    }
-
-    public ArrayList<Album> recursiveAddFromDir(String path) {
-        File musicDir = new File(path);
-        ArrayList<Album> albums = new ArrayList<>();
-
-        Album album = new Album(musicDir.getName(), musicDir.getPath());
-        for (File file : musicDir.listFiles()) {
-            if (file.isDirectory()) {
-                albums.addAll(recursiveAddFromDir(file.getAbsolutePath()));
-                continue;
-            }
-            album.addTrack(Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString())));
-        }
-
-        if (album.getTracks().length != 0)
-            albums.add(album);
-
-        return albums;
     }
 }
