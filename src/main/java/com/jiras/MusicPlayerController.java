@@ -98,22 +98,31 @@ public class MusicPlayerController implements Initializable {
             playlists.getItems().add(playlist);
         }
         albums.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Album>) change -> {
-            setTrackList(change.getList().get(0), "album");
+            TrackList to = change.getList().get(0);
+            if(to != null) {
+                setTrackList(to, "album");
+            }
         });
         playlists.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Playlist>) change -> {
-            setTrackList(change.getList().get(0), "playlist");
+            TrackList to = change.getList().get(0);
+            if(to != null) {
+                setTrackList(to, "playlist");
+            }
         });
     }
 
     public void setTrackList(TrackList list, String type) {
+
         if (selectedType != type) {
             if (selectedType == "album") {
                 albums.getSelectionModel().clearSelection();
+
             } else if (selectedType == "playlist") {
                 playlists.getSelectionModel().clearSelection();
             }
             selectedType = type;
         }
+        System.out.println(list.getName());
         listName.setText(list.getName());
         tracks.getItems().setAll(list.getTracks());
         currentSelTrackList = list;
