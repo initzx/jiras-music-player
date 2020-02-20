@@ -17,14 +17,16 @@ import java.util.HashMap;
 public class UserData {
     HashMap<String, Playlist> playlists;
     HashMap<String, Album> albums;
+    HashMap<Integer, Track> tracks;
 
 
     public UserData(Database db) throws SQLException {
         this.playlists = new HashMap<>();
         this.albums = new HashMap<>();
+        this.tracks = new HashMap<>();
+
         //sync folders with songs to load
         ResultSet syncFolders = db.selectAll("SELECT path FROM musicFolders");
-        System.out.println(syncFolders.getFetchSize());
         while(syncFolders.next()) {
             String path = syncFolders.getString("path");
             ArrayList<Album> albums = recursiveAlbums(path);
@@ -62,7 +64,12 @@ public class UserData {
             }
         }
 
-
+        ResultSet dbTracks = db.selectAll("SELECT id, path, name, year, artist FROM songs");
+        while(dbTracks.next()) {
+            String path = dbTracks.getString("path");
+            Integer id = dbTracks.getInt("id");
+            this.tracks.put(id, Track.loadTrack(new Media(path)));
+        }
         //load all tracks into Track objects with list
 
         //initialize albums by selecting all albums
