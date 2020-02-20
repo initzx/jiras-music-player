@@ -43,20 +43,9 @@ public class Main extends Application {
     }
 
     private void loadController(MusicPlayerController controller) throws SQLException, MalformedURLException, URISyntaxException {
-//        Playlist playlist = new Playlist("Mac <3");
-//        File musicDir = new File("/home/init0/Music/Stop Staring at the Shadows");
-//
-//        for (File file: Objects.requireNonNull(musicDir.listFiles())) {
-//            if (file.isDirectory()) {
-//
-//            }
-//            Track track = Track.loadTrack(new Media(Paths.get(musicDir+"/"+file).toUri().toString()));
-//            playlist.addTrack(track);
-//        }
         db = new Database();
 
         UserData userData = new UserData(db);
-//        userData.addPlaylist(playlist);
         controller.injectUserData(userData);
         controller.initializePlayer();
     }
