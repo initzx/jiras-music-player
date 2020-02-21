@@ -125,9 +125,11 @@ public class MusicPlayerController implements Initializable {
             }
         });
         playlists.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Playlist>) change -> {
-            TrackList to = change.getList().get(0);
-            if(to != null) {
-                setTrackList(to, "playlist");
+            if(change.getList().size() > 0) {
+                TrackList to = change.getList().get(0);
+                if(to != null) {
+                    setTrackList(to, "playlist");
+                }
             }
         });
 
@@ -368,7 +370,6 @@ public class MusicPlayerController implements Initializable {
     }
     @FXML
     private void showPlaylistContainer(Integer songID, ArrayList<Integer> addedPlaylists) {
-        System.out.println("Loading "+songID);
         songPlaylistContainer.setVisible(true);
 
         songPlaylists.getItems().clear();
@@ -387,7 +388,16 @@ public class MusicPlayerController implements Initializable {
             userData.toggleSongPlaylist(songPlaylist.getSongID(), songPlaylist.getPlaylistID());
             Track track = userData.getIndexedTrack(songPlaylist.getSongID());
             showPlaylistContainer(track.getID(), track.getPlaylists());
-            setTrackList(currentSelTrackList, selectedType);
+            //reload playlists
+            int selected = playlists.getSelectionModel().getSelectedIndex();
+            playlists.getItems().clear();
+            for (Playlist playlist : this.userData.getAllPlaylists()) {
+                playlists.getItems().add(playlist);
+            }
+            if(selected != -1) {
+                playlists.getSelectionModel().select(selected);
+            }
+
         }
 
     }

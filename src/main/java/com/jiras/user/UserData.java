@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class UserData {
     Database db;
@@ -51,7 +52,6 @@ public class UserData {
     }
 
     public boolean toggleSongPlaylist(Integer songID, Integer playlistID) throws SQLException, MalformedURLException, URISyntaxException {
-
         PreparedStatement playlistSongStmt = db.initQuery("SELECT id FROM playlistSongs WHERE songID = ? AND playlistID = ?");
         playlistSongStmt.setInt(1, songID);
         playlistSongStmt.setInt(2, playlistID);
@@ -69,7 +69,7 @@ public class UserData {
             db.executeUpdate(deleteStmt);
         }
         //resync
-        sync();
+        syncPlaylists(true);
         return duplicates.isClosed();
     }
 
@@ -90,9 +90,14 @@ public class UserData {
         syncFolders();
         syncAlbums();
         syncTracks();
-        syncPlaylists();
+        syncPlaylists(false);
     }
-    private void syncPlaylists() throws SQLException {
+    private void syncPlaylists(boolean resetTracks) throws SQLException {
+        if(resetTracks) {
+            for (Map.Entry<Integer, Track> entry : tracks.entrySet()) {
+                entry.getValue().resetPlaylists();
+            }
+        }
         this.playlists = new HashMap<>();
 
         //initialize playlists

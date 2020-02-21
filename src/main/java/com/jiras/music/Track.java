@@ -59,11 +59,8 @@ public class Track {
     public void addPlaylist(Integer playlistID) {
         addedPlaylists.add(playlistID);
     }
-    public void removePlaylist(Integer playlistID) {
-        addedPlaylists.remove(Integer.valueOf(playlistID));
-    }
-    public boolean inPlaylist(Integer playlistID) {
-        return addedPlaylists.contains(playlistID);
+    public void resetPlaylists() {
+        addedPlaylists = new ArrayList<>();
     }
     public MediaPlayer getMediaPlayer() {
         return mediaPlayer;
