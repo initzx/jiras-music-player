@@ -28,6 +28,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MusicPlayerController implements Initializable {
@@ -399,6 +400,21 @@ public class MusicPlayerController implements Initializable {
             }
 
         }
+    }
+    @FXML
+    private void createPlaylist() throws MalformedURLException, SQLException, URISyntaxException {
+        System.out.println("LAk?");
+        TextInputDialog dialog = new TextInputDialog("");
+        dialog.setTitle("Ny playlist");
+        dialog.setHeaderText("Playlist");
+        dialog.setContentText("Skriv navnet på playlisten");
 
+
+        Optional<String> result = dialog.showAndWait();
+        if (result.isPresent()){
+            Playlist playlist = this.userData.addPlaylist(result.get());
+            playlists.getItems().add(playlist);
+        }
+        //reload playlists
     }
 }

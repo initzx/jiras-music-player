@@ -194,9 +194,9 @@
                     </columnConstraints>
                     <rowConstraints>
                       <RowConstraints maxHeight="91.0" minHeight="10.0" percentHeight="7.0" prefHeight="33.0" vgrow="SOMETIMES" />
-                      <RowConstraints maxHeight="174.0" minHeight="10.0" prefHeight="174.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="174.0" minHeight="10.0" percentHeight="43.0" prefHeight="174.0" vgrow="SOMETIMES" />
                       <RowConstraints maxHeight="196.0" minHeight="10.0" percentHeight="7.0" prefHeight="71.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="196.0" minHeight="10.0" prefHeight="71.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="196.0" minHeight="10.0" percentHeight="43.0" prefHeight="71.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
                         <StackPane styleClass="sidebarTitle">
@@ -212,6 +212,7 @@
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="3">
                            <children>
                               <ListView fx:id="playlists" prefHeight="92.0" prefWidth="175.0" style="-fx-background-color: transparent;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                              <Button layoutX="53.0" layoutY="130.0" mnemonicParsing="false" onAction="#createPlaylist" style="-fx-background-color: blue;" text="Opret playlist" textFill="WHITE" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="53.0" AnchorPane.rightAnchor="53.0" />
                            </children>
                         </AnchorPane>
                         <StackPane styleClass="sidebarTitle" GridPane.rowIndex="2">

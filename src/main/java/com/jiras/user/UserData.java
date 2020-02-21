@@ -50,6 +50,16 @@ public class UserData {
         //resync
         sync();
     }
+    public Playlist addPlaylist(String name) throws URISyntaxException, SQLException, MalformedURLException {
+        PreparedStatement insertStmt = db.initQuery("INSERT INTO playlists(name) VALUES (?)");
+        insertStmt.setString(1, name);
+        int id = db.executeUpdate(insertStmt);
+        System.out.println("Inserted");
+        //add to array
+        Playlist playlist = new Playlist(id, name);
+        this.playlists.put(id, playlist);
+        return playlist;
+    }
 
     public boolean toggleSongPlaylist(Integer songID, Integer playlistID) throws SQLException, MalformedURLException, URISyntaxException {
         PreparedStatement playlistSongStmt = db.initQuery("SELECT id FROM playlistSongs WHERE songID = ? AND playlistID = ?");
@@ -86,6 +96,9 @@ public class UserData {
     public Track getIndexedTrack(Integer id) {
         return tracks.get(id);
     }
+    public Playlist getNewestPlaylist() {
+        return this.playlists.get(this.playlists.size() - 1);
+    }
     private void sync() throws SQLException, MalformedURLException, URISyntaxException {
         syncFolders();
         syncAlbums();
@@ -93,6 +106,7 @@ public class UserData {
         syncPlaylists(false);
     }
     private void syncPlaylists(boolean resetTracks) throws SQLException {
+        //Remove playlists from all tracks
         if(resetTracks) {
             for (Map.Entry<Integer, Track> entry : tracks.entrySet()) {
                 entry.getValue().resetPlaylists();
