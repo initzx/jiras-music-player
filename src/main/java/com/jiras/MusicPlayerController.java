@@ -1,26 +1,25 @@
 package com.jiras;
 
 import com.jiras.controls.MusicFolder;
+import com.jiras.controls.SongPlaylist;
 import com.jiras.music.*;
 import com.jiras.user.UserData;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
+import javafx.scene.paint.Paint;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
+import javafx.util.Callback;
 import javafx.util.Duration;
 
 import java.io.File;
@@ -28,7 +27,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.ListIterator;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 
 public class MusicPlayerController implements Initializable {
@@ -44,6 +43,9 @@ public class MusicPlayerController implements Initializable {
 
     @FXML
     private ListView<MusicFolder> musicFolders;
+
+    @FXML
+    private ListView<SongPlaylist> songPlaylists;
 
     @FXML
     private TableColumn<Track, String> artistCol;
@@ -73,6 +75,10 @@ public class MusicPlayerController implements Initializable {
 
     @FXML
     private AnchorPane musicFoldersContainer;
+
+    @FXML
+    private AnchorPane songPlaylistContainer;
+
 
     private UserData userData;
     private Queue<Track> queue;
@@ -108,11 +114,9 @@ public class MusicPlayerController implements Initializable {
         initializeTracksTable();
         for (Album album : this.userData.getAllAlbums()) {
             albums.getItems().add(album);
-            System.out.println("ayy??");
         }
         for (Playlist playlist : this.userData.getAllPlaylists()) {
             playlists.getItems().add(playlist);
-            System.out.println("WHAT??");
         }
         albums.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Album>) change -> {
             TrackList to = change.getList().get(0);
@@ -144,7 +148,6 @@ public class MusicPlayerController implements Initializable {
             }
             selectedType = type;
         }
-        System.out.println(list.getName());
         listName.setText(list.getName());
         tracks.getItems().setAll(list.getTracks());
         currentSelTrackList = list;
@@ -157,6 +160,7 @@ public class MusicPlayerController implements Initializable {
             int seconds = (int) Math.round(trackStringCellDataFeatures.getValue().getMedia().getDuration().toSeconds());
             return new ReadOnlyStringWrapper(String.format("%02d:%02d", seconds / 60, seconds % 60));
         });
+        addButtonToTable();
         tracks.getSelectionModel().selectedItemProperty().addListener(change -> {
             Track selected = tracks.getSelectionModel().getSelectedItem();
             if (selected == null)
@@ -177,6 +181,42 @@ public class MusicPlayerController implements Initializable {
                 }
             }
         });
+    }
+    private void addButtonToTable() {
+        TableColumn<Track, Void> colBtn = new TableColumn("");
+
+        Callback<TableColumn<Track, Void>, TableCell<Track, Void>> cellFactory = new Callback<TableColumn<Track, Void>, TableCell<Track, Void>>() {
+            @Override
+            public TableCell<Track, Void> call(final TableColumn<Track, Void> param) {
+                final TableCell<Track, Void> cell = new TableCell<Track, Void>() {
+
+                    private final Button btn = new Button("Playlists");
+
+                    {
+                        btn.setStyle("-fx-background-color: black; ");
+                        btn.setTextFill(Paint.valueOf("white"));
+                        btn.setOnAction((ActionEvent event) -> {
+                            Track data = getTableView().getItems().get(getIndex());
+                            showPlaylistContainer(data.getID(), data.getPlaylists());
+                        });
+                    }
+
+                    @Override
+                    public void updateItem(Void item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            setGraphic(btn);
+                        }
+                    }
+                };
+                return cell;
+            }
+        };
+
+        colBtn.setCellFactory(cellFactory);
+        tracks.getColumns().set(tracks.getColumns().size() - 1, colBtn);
     }
 
     private void play(Track track) {
@@ -309,7 +349,6 @@ public class MusicPlayerController implements Initializable {
         MusicFolder musicFolder = musicFolders.getSelectionModel().getSelectedItem();
         if(musicFolder != null) {
             userData.deleteMusicFolder(musicFolder.toString());
-            System.out.println("REMOVE initiALize");
             initializePlayer();
         }
     }
@@ -318,13 +357,38 @@ public class MusicPlayerController implements Initializable {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open Resource File");
         File selected = directoryChooser.showDialog(stage.getScene().getWindow());
-        String path = selected.getPath();
-        if(path!=null) {
+        if(selected!=null) {
+            String path = selected.getPath();
+
             userData.addMusicFolder(path);
-            System.out.println("add initiALize");
 
             initializePlayer();
 
         }
+    }
+    @FXML
+    private void showPlaylistContainer(Integer songID, ArrayList<Integer> addedPlaylists) {
+        System.out.println("Loading "+songID);
+        songPlaylistContainer.setVisible(true);
+
+        songPlaylists.getItems().clear();
+        for (Playlist playlist : this.userData.getAllPlaylists()) {
+            songPlaylists.getItems().add(new SongPlaylist(playlist.getID(), songID, playlist.toString(), addedPlaylists.contains(playlist.getID())));
+        }
+    }
+    @FXML
+    private void hidePlaylistContainer() {
+        songPlaylistContainer.setVisible(false);
+    }
+    @FXML
+    private void toggleSongPlaylist() throws URISyntaxException, SQLException, MalformedURLException {
+        SongPlaylist songPlaylist = songPlaylists.getSelectionModel().getSelectedItem();
+        if(songPlaylist != null) {
+            userData.toggleSongPlaylist(songPlaylist.getSongID(), songPlaylist.getPlaylistID());
+            Track track = userData.getIndexedTrack(songPlaylist.getSongID());
+            showPlaylistContainer(track.getID(), track.getPlaylists());
+            setTrackList(currentSelTrackList, selectedType);
+        }
+
     }
 }

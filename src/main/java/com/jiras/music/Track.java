@@ -7,7 +7,7 @@ import javafx.scene.media.MediaPlayer;
 import java.util.ArrayList;
 
 public class Track {
-
+    private Integer id;
     private Media media;
     private String path;
     private MediaPlayer mediaPlayer;
@@ -17,7 +17,8 @@ public class Track {
     private String artist = "Unknown artist";
     private ArrayList<Integer> addedPlaylists = new ArrayList<>();
 
-    public Track(Media media, String title, String year, String artist) {
+    public Track(Integer id, Media media, String title, String year, String artist) {
+        this.id = id;
         this.media = media;
         this.path = media.getSource();
         this.title = title;
@@ -67,7 +68,12 @@ public class Track {
     public MediaPlayer getMediaPlayer() {
         return mediaPlayer;
     }
-
+    public Integer getID() {
+        return id;
+    }
+    public ArrayList<Integer> getPlaylists() {
+        return addedPlaylists;
+    }
     public Media getMedia() {
         return media;
     }

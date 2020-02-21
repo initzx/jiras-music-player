@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Playlist extends TrackList {
-
-    public Playlist(String name) {
+    Integer id;
+    public Playlist(Integer id, String name) {
         super(name);
+        this.id = id;
     }
 
 
@@ -15,5 +16,8 @@ public class Playlist extends TrackList {
         return name;
     }
 
+    public Integer getID() {
+        return id;
+    }
 
 }

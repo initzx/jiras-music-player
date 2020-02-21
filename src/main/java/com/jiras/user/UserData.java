@@ -12,7 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.PreparedStatement;
@@ -51,6 +50,29 @@ public class UserData {
         sync();
     }
 
+    public boolean toggleSongPlaylist(Integer songID, Integer playlistID) throws SQLException, MalformedURLException, URISyntaxException {
+
+        PreparedStatement playlistSongStmt = db.initQuery("SELECT id FROM playlistSongs WHERE songID = ? AND playlistID = ?");
+        playlistSongStmt.setInt(1, songID);
+        playlistSongStmt.setInt(2, playlistID);
+        ResultSet duplicates = db.executeStmt(playlistSongStmt);
+        if(duplicates.isClosed()) {
+            PreparedStatement insertStmt = db.initQuery("INSERT INTO playlistSongs(songID, playlistID) VALUES (?, ?)");
+            insertStmt.setInt(1, songID);
+            insertStmt.setInt(2, playlistID);
+            db.executeUpdate(insertStmt);
+
+        } else {
+            Integer id = duplicates.getInt("id");
+            PreparedStatement deleteStmt = db.initQuery("DELETE FROM playlistSongs WHERE id = ?");
+            deleteStmt.setInt(1, id);
+            db.executeUpdate(deleteStmt);
+        }
+        //resync
+        sync();
+        return duplicates.isClosed();
+    }
+
     public Playlist[] getAllPlaylists() {
         return playlists.values().toArray(new Playlist[0]);
     }
@@ -60,6 +82,9 @@ public class UserData {
 
     public Album[] getAllAlbums() {
         return albums.values().toArray(new Album[0]);
+    }
+    public Track getIndexedTrack(Integer id) {
+        return tracks.get(id);
     }
     private void sync() throws SQLException, MalformedURLException, URISyntaxException {
         syncFolders();
@@ -76,7 +101,7 @@ public class UserData {
         while(dbPlaylists.next()) {
             Integer id = dbPlaylists.getInt("id");
             String name = dbPlaylists.getString("name");
-            this.playlists.put(id, new Playlist(name));
+            this.playlists.put(id, new Playlist(id, name));
         }
 
         //connect songs to playlists
@@ -106,7 +131,7 @@ public class UserData {
             Path realPath = Paths.get(new URL(path).toURI());;
             if(Files.exists(realPath)) {
                 //add track
-                Track track =  new Track(new Media(path), dbTracks.getString("name"), dbTracks.getString("year"), dbTracks.getString("artist"));
+                Track track =  new Track(dbTracks.getInt("id"), new Media(path), dbTracks.getString("name"), dbTracks.getString("year"), dbTracks.getString("artist"));
                 this.tracks.put(id, track);
                 if(albumID!=0) {
                     //also add it to the album

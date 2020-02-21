@@ -163,7 +163,7 @@
                      <children>
                         <AnchorPane>
                            <children>
-                              <Text fx:id="listName" fill="WHITE" layoutX="14.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Trackname">
+                              <Text fx:id="listName" fill="WHITE" layoutX="14.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Vælg liste">
                                  <font>
                                     <Font name="Cantarell Regular" size="34.0" />
                                  </font>
@@ -175,8 +175,9 @@
                               <TableView fx:id="tracks" cacheShape="false" centerShape="false" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" scaleShape="false" snapToPixel="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <columns>
                                     <TableColumn fx:id="artistCol" editable="false" maxWidth="-Infinity" minWidth="110.0" prefWidth="-1.0" text="Artist" />
-                                    <TableColumn fx:id="trackCol" editable="false" maxWidth="1.7976931348623157E308" minWidth="225.0" prefWidth="-1.0" text="Track" />
-                                    <TableColumn fx:id="durationCol" editable="false" maxWidth="-Infinity" minWidth="90.0" prefWidth="-1.0" text="Duration" />
+                                    <TableColumn fx:id="trackCol" editable="false" maxWidth="1.7976931348623157E308" minWidth="102.0" prefWidth="102.0" text="Track" />
+                                    <TableColumn fx:id="durationCol" editable="false" maxWidth="213.0" minWidth="37.0" prefWidth="144.0" text="Duration" />
+                                    <TableColumn prefWidth="75.0" />
                                  </columns>
                               </TableView>
                            </children>
@@ -233,6 +234,17 @@
                   <Button mnemonicParsing="false" onAction="#addMusicFolder" text="Tilføj ny" />
                   <Button mnemonicParsing="false" onAction="#toggleFolderContainer" text="Luk menu" />
               </buttons>
+            </ButtonBar>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="songPlaylistContainer" layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0" visible="false" AnchorPane.bottomAnchor="100.0" AnchorPane.leftAnchor="250.0" AnchorPane.rightAnchor="250.0" AnchorPane.topAnchor="100.0">
+         <children>
+            <ListView fx:id="songPlaylists" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+            <ButtonBar prefHeight="40.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+               <buttons>
+                  <Button mnemonicParsing="false" onAction="#toggleSongPlaylist" text="Toggle playlist" />
+                  <Button mnemonicParsing="false" onAction="#hidePlaylistContainer" text="Luk menu" />
+               </buttons>
             </ButtonBar>
          </children>
       </AnchorPane>
