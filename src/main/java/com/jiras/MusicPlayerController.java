@@ -1,5 +1,6 @@
 package com.jiras;
 
+import com.jiras.controls.MusicFolder;
 import com.jiras.music.*;
 import com.jiras.user.UserData;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
@@ -7,22 +8,26 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.scene.text.Text;
+import javafx.stage.DirectoryChooser;
 import javafx.util.Duration;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ListIterator;
 import java.util.ResourceBundle;
 
@@ -36,6 +41,9 @@ public class MusicPlayerController implements Initializable {
 
     @FXML
     private TableView<Track> tracks;
+
+    @FXML
+    private ListView<MusicFolder> musicFolders;
 
     @FXML
     private TableColumn<Track, String> artistCol;
@@ -62,6 +70,9 @@ public class MusicPlayerController implements Initializable {
     private Text timeElapsed;
     @FXML
     private Text duration;
+
+    @FXML
+    private AnchorPane musicFoldersContainer;
 
     private UserData userData;
     private Queue<Track> queue;
@@ -90,12 +101,18 @@ public class MusicPlayerController implements Initializable {
 
     public void initializePlayer() {
         System.out.println("Loading playlists / albums");
+        albums.getItems().clear();
+        tracks.getItems().clear();
+        playlists.getItems().clear();
+        musicFolders.getItems().clear();
         initializeTracksTable();
         for (Album album : this.userData.getAllAlbums()) {
             albums.getItems().add(album);
+            System.out.println("ayy??");
         }
         for (Playlist playlist : this.userData.getAllPlaylists()) {
             playlists.getItems().add(playlist);
+            System.out.println("WHAT??");
         }
         albums.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Album>) change -> {
             TrackList to = change.getList().get(0);
@@ -109,6 +126,11 @@ public class MusicPlayerController implements Initializable {
                 setTrackList(to, "playlist");
             }
         });
+
+        //initialize musicFolders
+        for (MusicFolder musicFolder : this.userData.getAllMusicFolders()) {
+            musicFolders.getItems().add(musicFolder);
+        }
     }
 
     public void setTrackList(TrackList list, String type) {
@@ -162,8 +184,6 @@ public class MusicPlayerController implements Initializable {
         player = new MediaPlayer(current.getMedia());
         player.setOnPlaying(this::onPlaying);
         player.setOnPaused(this::onPaused);
-//        player.setOnStopped(this::onStopped);
-//        player.setOnEndOfMedia(this::onEnd);
         player.setOnStopped(this::onFinished);
         player.setOnEndOfMedia(this::onFinished);
         player.play();
@@ -196,22 +216,6 @@ public class MusicPlayerController implements Initializable {
     private void onPaused() {
         playIcon.setGlyphName("PLAY");
     }
-
-//    private void onStopped() {
-//        System.out.println("onStopped " + current.getTitle());
-//        if (next != null)
-//            play(next);
-//        else
-//            endQueue();
-//    }
-//
-//    private void onEnd() {
-//        System.out.println("ended " + current.getTitle());
-//        if (!queue.isAtEnd())
-//            play(queue.next());
-//        else
-//            endQueue();
-//    }
 
     private void onFinished() {
         switch (stopReason) {
@@ -257,7 +261,6 @@ public class MusicPlayerController implements Initializable {
         stopReason = reason;
         player.stop();
     }
-
     @FXML
     private void playPause() {
         if (player == null)
@@ -292,12 +295,36 @@ public class MusicPlayerController implements Initializable {
         stop(StopReason.SKIPPED);
     }
 
-    //@FXML
-    //private void importSongs() {
-    //    DirectoryChooser directoryChooser = new DirectoryChooser();
-    //    directoryChooser.setTitle("Open Resource File");
-    //    File selected = directoryChooser.showDialog(stage.getScene().getWindow());
-    //    userData = UserData.createUserDataFromPath(selected.getPath());
-    //    initializePlayer();
-    //}
+    @FXML
+    private void toggleFolderContainer() {
+        if(musicFoldersContainer.isVisible()) {
+            musicFoldersContainer.setVisible(false);
+        } else {
+            musicFoldersContainer.setVisible(true);
+        }
+    }
+
+    @FXML
+    private void removeMusicFolder() throws SQLException, MalformedURLException, URISyntaxException {
+        MusicFolder musicFolder = musicFolders.getSelectionModel().getSelectedItem();
+        if(musicFolder != null) {
+            userData.deleteMusicFolder(musicFolder.toString());
+            System.out.println("REMOVE initiALize");
+            initializePlayer();
+        }
+    }
+    @FXML
+    private void addMusicFolder() throws SQLException, MalformedURLException, URISyntaxException {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        directoryChooser.setTitle("Open Resource File");
+        File selected = directoryChooser.showDialog(stage.getScene().getWindow());
+        String path = selected.getPath();
+        if(path!=null) {
+            userData.addMusicFolder(path);
+            System.out.println("add initiALize");
+
+            initializePlayer();
+
+        }
+    }
 }

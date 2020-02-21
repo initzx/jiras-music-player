@@ -1,5 +1,6 @@
 package com.jiras.user;
 
+import com.jiras.controls.MusicFolder;
 import com.jiras.music.Album;
 import com.jiras.music.Playlist;
 import com.jiras.music.Track;
@@ -21,20 +22,132 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserData {
+    Database db;
     HashMap<Integer, Playlist> playlists;
     HashMap<Integer, Album> albums;
     HashMap<Integer, Track> tracks;
+    HashMap<Integer, MusicFolder> musicFolders;
 
 
     public UserData(Database db) throws SQLException, MalformedURLException, URISyntaxException {
+        this.db = db;
+
+        sync();
+
+    }
+    public void deleteMusicFolder(String path) throws SQLException, MalformedURLException, URISyntaxException {
+        PreparedStatement deleteStmt = db.initQuery("DELETE FROM musicFolders WHERE path = ?");
+        deleteStmt.setString(1, path);
+        db.executeUpdate(deleteStmt);
+        //resync
+        sync();
+    }
+
+    public void addMusicFolder(String path) throws SQLException, MalformedURLException, URISyntaxException {
+        PreparedStatement insertStmt = db.initQuery("INSERT INTO musicFolders(path) VALUES (?)");
+        insertStmt.setString(1, path);
+        db.executeUpdate(insertStmt);
+        //resync
+        sync();
+    }
+
+    public Playlist[] getAllPlaylists() {
+        return playlists.values().toArray(new Playlist[0]);
+    }
+    public MusicFolder[] getAllMusicFolders() {
+        return musicFolders.values().toArray(new MusicFolder[0]);
+    }
+
+    public Album[] getAllAlbums() {
+        return albums.values().toArray(new Album[0]);
+    }
+    private void sync() throws SQLException, MalformedURLException, URISyntaxException {
+        syncFolders();
+        syncAlbums();
+        syncTracks();
+        syncPlaylists();
+    }
+    private void syncPlaylists() throws SQLException {
         this.playlists = new HashMap<>();
-        this.albums = new HashMap<>();
+
+        //initialize playlists
+        //load all playlists
+        ResultSet dbPlaylists = db.selectAll("SELECT id, name FROM playlists");
+        while(dbPlaylists.next()) {
+            Integer id = dbPlaylists.getInt("id");
+            String name = dbPlaylists.getString("name");
+            this.playlists.put(id, new Playlist(name));
+        }
+
+        //connect songs to playlists
+        ResultSet dbPlaylistSongs = db.selectAll("SELECT songID, playlistID FROM playlistSongs");
+        while(dbPlaylistSongs.next()) {
+            Integer songID = dbPlaylistSongs.getInt("songID");
+            Integer playlistID = dbPlaylistSongs.getInt("playlistID");
+            Track track = this.tracks.get(songID);
+            if(track != null) {
+                //make sure the tracks knows it's in the playlist
+                track.addPlaylist(playlistID);
+                this.playlists.get(playlistID).addTrack(track);
+            }
+        }
+    }
+    private void syncTracks() throws SQLException, MalformedURLException, URISyntaxException {
         this.tracks = new HashMap<>();
 
+        //load all tracks into Track objects with list
+        ResultSet dbTracks = db.selectAll("SELECT id, path, name, year, artist, albumID FROM songs");
+        while(dbTracks.next()) {
+            String path = dbTracks.getString("path");
+            Integer id = dbTracks.getInt("id");
+            Integer albumID = dbTracks.getInt("albumID");
+
+            //check if file still exists
+            Path realPath = Paths.get(new URL(path).toURI());;
+            if(Files.exists(realPath)) {
+                //add track
+                Track track =  new Track(new Media(path), dbTracks.getString("name"), dbTracks.getString("year"), dbTracks.getString("artist"));
+                this.tracks.put(id, track);
+                if(albumID!=0) {
+                    //also add it to the album
+                    this.albums.get(albumID).addTrack(track);
+                }
+            } else {
+                //remove it from database
+                PreparedStatement deleteStmt = db.initQuery("DELETE FROM songs WHERE id = ?");
+                deleteStmt.setInt(1, id);
+                db.executeUpdate(deleteStmt);
+                //remove it
+                PreparedStatement deleteStmt2 = db.initQuery("DELETE FROM playlistSongs WHERE songID = ?");
+                deleteStmt2.setInt(1, id);
+                db.executeUpdate(deleteStmt2);
+            }
+        }
+    }
+    private void syncAlbums() throws SQLException {
+        this.albums = new HashMap<>();
+
+        //initialize albums by selecting all albums
+        ResultSet dbAlbums = db.selectAll("SELECT id, name FROM albums");
+        while(dbAlbums.next()) {
+            Integer id = dbAlbums.getInt("id");
+            String name = dbAlbums.getString("name");
+            this.albums.put(id, new Album(name));
+        }
+    }
+    private void syncFolders() throws SQLException {
         //sync folders with songs to load
-        ResultSet syncFolders = db.selectAll("SELECT path FROM musicFolders");
+
+        this.musicFolders = new HashMap<>();
+
+        ResultSet syncFolders = db.selectAll("SELECT id, path FROM musicFolders");
         while(syncFolders.next()) {
+            Integer id = syncFolders.getInt("id");
             String path = syncFolders.getString("path");
+            //add the folder to userdata
+            this.musicFolders.put(id, new MusicFolder(path));
+
+            //find all albums inside the folder
             ArrayList<Album> albums = recursiveAlbums(path);
             for(Album album : albums) {
                 int albumID;
@@ -69,83 +182,30 @@ public class UserData {
                 }
             }
         }
-
-        //initialize albums by selecting all albums
-        ResultSet dbAlbums = db.selectAll("SELECT id, name FROM albums");
-        while(dbAlbums.next()) {
-            Integer id = dbAlbums.getInt("id");
-            String name = dbAlbums.getString("name");
-            this.albums.put(id, new Album(name));
-        }
-
-        //load all tracks into Track objects with list
-        ResultSet dbTracks = db.selectAll("SELECT id, path, name, year, artist, albumID FROM songs");
-        while(dbTracks.next()) {
-            String path = dbTracks.getString("path");
-            Integer id = dbTracks.getInt("id");
-            Integer albumID = dbTracks.getInt("albumID");
-
-            //check if file still exists
-            Path realPath = Paths.get(new URL(path).toURI());;
-            if(Files.exists(realPath)) {
-                //add track
-                Track track =  new Track(new Media(path), dbTracks.getString("name"), dbTracks.getString("year"), dbTracks.getString("artist"));
-                this.tracks.put(id, track);
-                if(albumID!=0) {
-                    //also add it to the album
-                    this.albums.get(albumID).addTrack(track);
-                }
-            } else {
-                //remove it from database
-                PreparedStatement deleteStmt = db.initQuery("DELETE FROM songs WHERE id = ?");
-                deleteStmt.setInt(1, id);
-                db.executeUpdate(deleteStmt);
-            }
-        }
-
-        //initialize playlists
-        //load all playlists
-        ResultSet dbPlaylists = db.selectAll("SELECT id, name FROM playlists");
-        while(dbPlaylists.next()) {
-            Integer id = dbPlaylists.getInt("id");
-            String name = dbPlaylists.getString("name");
-            this.playlists.put(id, new Playlist(name));
-        }
-
-        //connect songs to playlists
-        ResultSet dbPlaylistSongs = db.selectAll("SELECT songID, playlistID FROM playlistSongs");
-        while(dbPlaylistSongs.next()) {
-            Integer songID = dbPlaylistSongs.getInt("songID");
-            Integer playlistID = dbPlaylistSongs.getInt("playlistID");
-            Track track = this.tracks.get(songID);
-            if(track != null) {
-                //make sure the tracks knows it's in the playlist
-                track.addPlaylist(playlistID);
-                this.playlists.get(playlistID).addTrack(track);
-            }
-        }
-
     }
-
-    public Playlist[] getAllPlaylists() {
-        return playlists.values().toArray(new Playlist[0]);
-    }
-
-    public Album[] getAllAlbums() {
-        return albums.values().toArray(new Album[0]);
-    }
-
     public ArrayList<Album> recursiveAlbums(String path) {
         File musicDir = new File(path);
         ArrayList<Album> albums = new ArrayList<>();
 
         Album album = new Album(musicDir.getName());
-        for (File file : musicDir.listFiles()) {
-            if (file.isDirectory()) {
-                albums.addAll(recursiveAlbums(file.getAbsolutePath()));
-                continue;
+        if(musicDir.listFiles() != null) {
+            for (File file : musicDir.listFiles()) {
+                if (file.isDirectory()) {
+                    albums.addAll(recursiveAlbums(file.getAbsolutePath()));
+                    continue;
+                }
+                String extension = "";
+
+                int i = file.getAbsolutePath().lastIndexOf('.');
+                if (i > 0) {
+                    extension = file.getAbsolutePath().substring(i + 1);
+                }
+
+                if (extension.equals("mp3") || extension.equals("m4a")) {
+
+                    album.addTrack(Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString())));
+                }
             }
-            album.addTrack(Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString())));
         }
 
         if (album.getTracks().length != 0)
