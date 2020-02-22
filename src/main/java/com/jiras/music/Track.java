@@ -25,6 +25,9 @@ public class Track {
 //    }
 
     private Track(Media media, String defaultTitle) {
+        // it is required to initialize media with MediaPlayer to get the duration
+        new MediaPlayer(media);
+
         this.media = media;
         this.path = media.getSource();
         this.title = defaultTitle;
