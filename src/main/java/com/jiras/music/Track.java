@@ -4,6 +4,8 @@ import javafx.collections.MapChangeListener;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+import java.io.File;
+
 public class Track {
 
     private Media media;
@@ -22,10 +24,10 @@ public class Track {
 //        this.album = album;
 //    }
 
-    private Track(Media media) {
+    private Track(Media media, String defaultTitle) {
         this.media = media;
         this.path = media.getSource();
-
+        this.title = defaultTitle;
         media.getMetadata().addListener((MapChangeListener<? super String, ? super Object>) c -> {
             if (c.wasAdded()) {
                 switch ((String) c.getKey()) {
@@ -49,8 +51,8 @@ public class Track {
         });
     }
 
-    public static Track loadTrack(Media media) {
-        return new Track(media);
+    public static Track loadTrack(Media media, String defaultTitle) {
+        return new Track(media, defaultTitle);
     }
 
     public Media getMedia() {

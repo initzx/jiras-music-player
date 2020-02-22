@@ -79,7 +79,10 @@ public class UserData {
                 playlists.addAll(recursiveImportFromDir(file.getAbsolutePath()));
             }
             else if (file.getName().endsWith(".mp3")) {
-                playlist.addTrack(Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString())));
+                playlist.addTrack(
+                        Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString()),
+                        file.getName().replace(".mp3", ""))
+                );
             }
         }
 
