@@ -10,8 +10,11 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.media.Media;
 import javafx.stage.Stage;
+import org.apache.tika.exception.TikaException;
+import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -42,7 +45,7 @@ public class Main extends Application {
         launch(args);
     }
 
-    private void loadController(MusicPlayerController controller) throws SQLException, MalformedURLException, URISyntaxException {
+    private void loadController(MusicPlayerController controller) throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
         db = new Database();
 
         UserData userData = new UserData(db);

@@ -4,7 +4,23 @@ import javafx.collections.MapChangeListener;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.mp3.Mp3Parser;
+import org.xml.sax.ContentHandler;
+import org.xml.sax.SAXException;
+import org.xml.sax.helpers.DefaultHandler;
 
 public class Track {
     private Integer id;
@@ -12,48 +28,39 @@ public class Track {
     private String path;
     private MediaPlayer mediaPlayer;
     private Integer trackNum = 0;
-    private String title = "Unknown track";
+    private String title;
     private String year = "Unknown year";
     private String artist = "Unknown artist";
     private ArrayList<Integer> addedPlaylists = new ArrayList<>();
 
-    public Track(Integer id, Media media, String title, String year, String artist) {
+    public Track(Integer id, String path, String title, String year, String artist) {
         this.id = id;
-        this.media = media;
-        this.path = media.getSource();
+        this.media = new Media(Paths.get(path).toUri().toString());
+        this.path = path;
         this.title = title;
         this.year = year;
         this.artist = artist;
     }
-
-    private Track(Media media) {
-        this.media = media;
-        this.mediaPlayer = new MediaPlayer(media);
-        this.path = media.getSource();
-
-
-        media.getMetadata().addListener((MapChangeListener<? super String, ? super Object>) c -> {
-            if (c.wasAdded()) {
-                switch ((String) c.getKey()) {
-                    case "artist":
-                        artist = c.getValueAdded().toString();
-                        break;
-                    case "title":
-                        title = c.getValueAdded().toString();
-                        break;
-                    case "year":
-                        year = c.getValueAdded().toString();
-                        break;
-                    case "track number":
-                        trackNum = Integer.parseInt(c.getValueAdded().toString());
-                        break;
-                }
-            }
-        });
+    public Track(String title, String artist,  String year, String path) {
+        this.title = title;
+        if(artist != null) this.artist = artist;
+        if(year != null) this.year = year;
+        this.path = path;
     }
-
-    public static Track loadTrack(Media media) {
-        return new Track(media);
+    public static Track onlyMetadata(String path) {
+        try {
+            InputStream input = new FileInputStream(new File(path));
+            ContentHandler handler = new DefaultHandler();
+            Metadata metadata = new Metadata();
+            Parser parser = new Mp3Parser();
+            ParseContext parseCtx = new ParseContext();
+            parser.parse(input, handler, metadata, parseCtx);
+            input.close();
+            return new Track(metadata.get("title"), metadata.get("creator"), metadata.get("year"), path);
+        } catch (TikaException | SAXException | IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     public void addPlaylist(Integer playlistID) {

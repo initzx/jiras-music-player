@@ -6,8 +6,11 @@ import com.jiras.music.Playlist;
 import com.jiras.music.Track;
 import com.jiras.sql.Database;
 import javafx.scene.media.Media;
+import org.apache.tika.exception.TikaException;
+import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -20,6 +23,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class UserData {
     Database db;
@@ -29,13 +33,13 @@ public class UserData {
     HashMap<Integer, MusicFolder> musicFolders;
 
 
-    public UserData(Database db) throws SQLException, MalformedURLException, URISyntaxException {
+    public UserData(Database db) throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
         this.db = db;
 
         sync();
 
     }
-    public void deleteMusicFolder(String path) throws SQLException, MalformedURLException, URISyntaxException {
+    public void deleteMusicFolder(String path) throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
         PreparedStatement deleteStmt = db.initQuery("DELETE FROM musicFolders WHERE path = ?");
         deleteStmt.setString(1, path);
         db.executeUpdate(deleteStmt);
@@ -43,7 +47,7 @@ public class UserData {
         sync();
     }
 
-    public void addMusicFolder(String path) throws SQLException, MalformedURLException, URISyntaxException {
+    public void addMusicFolder(String path) throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
         PreparedStatement insertStmt = db.initQuery("INSERT INTO musicFolders(path) VALUES (?)");
         insertStmt.setString(1, path);
         db.executeUpdate(insertStmt);
@@ -61,7 +65,7 @@ public class UserData {
         return playlist;
     }
 
-    public boolean toggleSongPlaylist(Integer songID, Integer playlistID) throws SQLException, MalformedURLException, URISyntaxException {
+    public void toggleSongPlaylist(Integer songID, Integer playlistID) throws SQLException, MalformedURLException, URISyntaxException {
         PreparedStatement playlistSongStmt = db.initQuery("SELECT id FROM playlistSongs WHERE songID = ? AND playlistID = ?");
         playlistSongStmt.setInt(1, songID);
         playlistSongStmt.setInt(2, playlistID);
@@ -80,7 +84,7 @@ public class UserData {
         }
         //resync
         syncPlaylists(true);
-        return duplicates.isClosed();
+        duplicates.isClosed();
     }
 
     public Playlist[] getAllPlaylists() {
@@ -99,7 +103,7 @@ public class UserData {
     public Playlist getNewestPlaylist() {
         return this.playlists.get(this.playlists.size() - 1);
     }
-    private void sync() throws SQLException, MalformedURLException, URISyntaxException {
+    private void sync() throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
         syncFolders();
         syncAlbums();
         syncTracks();
@@ -147,10 +151,9 @@ public class UserData {
             Integer albumID = dbTracks.getInt("albumID");
 
             //check if file still exists
-            Path realPath = Paths.get(new URL(path).toURI());;
-            if(Files.exists(realPath)) {
+            if(new File(path).exists()) {
                 //add track
-                Track track =  new Track(dbTracks.getInt("id"), new Media(path), dbTracks.getString("name"), dbTracks.getString("year"), dbTracks.getString("artist"));
+                Track track =  new Track(dbTracks.getInt("id"), path, dbTracks.getString("name"), dbTracks.getString("year"), dbTracks.getString("artist"));
                 this.tracks.put(id, track);
                 if(albumID!=0) {
                     //also add it to the album
@@ -233,7 +236,7 @@ public class UserData {
 
         Album album = new Album(musicDir.getName());
         if(musicDir.listFiles() != null) {
-            for (File file : musicDir.listFiles()) {
+            for (File file : Objects.requireNonNull(musicDir.listFiles())) {
                 if (file.isDirectory()) {
                     albums.addAll(recursiveAlbums(file.getAbsolutePath()));
                     continue;
@@ -247,7 +250,7 @@ public class UserData {
 
                 if (extension.equals("mp3") || extension.equals("m4a")) {
 
-                    album.addTrack(Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString())));
+                    album.addTrack(Track.onlyMetadata(file.getAbsolutePath()));
                 }
             }
         }

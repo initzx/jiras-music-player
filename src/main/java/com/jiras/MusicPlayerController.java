@@ -21,8 +21,11 @@ import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
 import javafx.util.Duration;
+import org.apache.tika.exception.TikaException;
+import org.xml.sax.SAXException;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -348,7 +351,7 @@ public class MusicPlayerController implements Initializable {
     }
 
     @FXML
-    private void removeMusicFolder() throws SQLException, MalformedURLException, URISyntaxException {
+    private void removeMusicFolder() throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
         MusicFolder musicFolder = musicFolders.getSelectionModel().getSelectedItem();
         if(musicFolder != null) {
             userData.deleteMusicFolder(musicFolder.toString());
@@ -356,7 +359,7 @@ public class MusicPlayerController implements Initializable {
         }
     }
     @FXML
-    private void addMusicFolder() throws SQLException, MalformedURLException, URISyntaxException {
+    private void addMusicFolder() throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open Resource File");
         File selected = directoryChooser.showDialog(stage.getScene().getWindow());
@@ -403,7 +406,6 @@ public class MusicPlayerController implements Initializable {
     }
     @FXML
     private void createPlaylist() throws MalformedURLException, SQLException, URISyntaxException {
-        System.out.println("LAk?");
         TextInputDialog dialog = new TextInputDialog("");
         dialog.setTitle("Ny playlist");
         dialog.setHeaderText("Playlist");
