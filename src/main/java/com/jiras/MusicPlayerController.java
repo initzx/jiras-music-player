@@ -56,9 +56,6 @@ public class MusicPlayerController implements Initializable {
     @FXML
     private TableColumn<Track, String> trackCol;
     @FXML
-    private TableColumn<Track, String> durationCol;
-
-    @FXML
     private Text listName;
 
     @FXML
@@ -162,10 +159,6 @@ public class MusicPlayerController implements Initializable {
     private void initializeTracksTable() {
         artistCol.setCellValueFactory(new PropertyValueFactory<>("artist"));
         trackCol.setCellValueFactory(new PropertyValueFactory<>("title"));
-        durationCol.setCellValueFactory(trackStringCellDataFeatures -> {
-            int seconds = (int) Math.round(trackStringCellDataFeatures.getValue().getMedia().getDuration().toSeconds());
-            return new ReadOnlyStringWrapper(String.format("%02d:%02d", seconds / 60, seconds % 60));
-        });
         addButtonToTable();
         tracks.getSelectionModel().selectedItemProperty().addListener(change -> {
             Track selected = tracks.getSelectionModel().getSelectedItem();

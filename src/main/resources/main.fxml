@@ -9,8 +9,6 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.effect.Blend?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -47,11 +45,7 @@
                      <children>
                         <AnchorPane>
                            <children>
-                              <ImageView fitHeight="164.0" fitWidth="164.0" layoutX="21.0" layoutY="28.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="28.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="28.0">
-                                 <image>
-                                    <Image url="@art.png" />
-                                 </image>
-                              </ImageView>
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0" style="-fx-background-image: url(&quot;art.png&quot;); -fx-background-size: contain; -fx-background-repeat: no-repeat; -fx-background-position: center;" AnchorPane.bottomAnchor="20.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0" />
                            </children>
                         </AnchorPane>
                         <GridPane prefHeight="239.0" prefWidth="205.0" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
@@ -157,17 +151,21 @@
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" percentWidth="100.0" prefWidth="100.0" />
                      </columnConstraints>
                      <rowConstraints>
-                        <RowConstraints minHeight="10.0" percentHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints minHeight="10.0" percentHeight="70.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" percentHeight="20.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" percentHeight="80.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
                      </rowConstraints>
                      <children>
                         <AnchorPane>
                            <children>
-                              <Text fx:id="listName" fill="WHITE" layoutX="14.0" layoutY="48.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Vælg liste">
-                                 <font>
-                                    <Font name="Cantarell Regular" size="34.0" />
-                                 </font>
-                              </Text>
+                              <StackPane prefHeight="150.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                 <children>
+                                    <Text fx:id="listName" fill="WHITE" strokeType="OUTSIDE" strokeWidth="0.0" text="Vælg liste">
+                                       <font>
+                                          <Font name="Cantarell Regular" size="34.0" />
+                                       </font>
+                                    </Text>
+                                 </children>
+                              </StackPane>
                            </children>
                         </AnchorPane>
                         <AnchorPane prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1">
@@ -175,9 +173,8 @@
                               <TableView fx:id="tracks" cacheShape="false" centerShape="false" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="0.0" prefWidth="0.0" scaleShape="false" snapToPixel="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                  <columns>
                                     <TableColumn fx:id="artistCol" editable="false" maxWidth="-Infinity" minWidth="110.0" prefWidth="-1.0" text="Artist" />
-                                    <TableColumn fx:id="trackCol" editable="false" maxWidth="1.7976931348623157E308" minWidth="102.0" prefWidth="102.0" text="Track" />
-                                    <TableColumn fx:id="durationCol" editable="false" maxWidth="213.0" minWidth="37.0" prefWidth="144.0" text="Duration" />
-                                    <TableColumn prefWidth="75.0" />
+                                    <TableColumn fx:id="trackCol" editable="false" maxWidth="1.7976931348623157E308" minWidth="102.0" prefWidth="175.0" text="Track" />
+                                    <TableColumn minWidth="2.0" />
                                  </columns>
                               </TableView>
                            </children>
