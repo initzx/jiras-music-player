@@ -1,15 +1,11 @@
 package com.jiras.music;
 
-import javafx.collections.MapChangeListener;
 import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
-
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -26,8 +22,6 @@ public class Track {
     private Integer id;
     private Media media;
     private String path;
-    private MediaPlayer mediaPlayer;
-    private Integer trackNum = 0;
     private String title;
     private String year = "Unknown year";
     private String artist = "Unknown artist";
@@ -68,9 +62,6 @@ public class Track {
     }
     public void resetPlaylists() {
         addedPlaylists = new ArrayList<>();
-    }
-    public MediaPlayer getMediaPlayer() {
-        return mediaPlayer;
     }
     public Integer getID() {
         return id;

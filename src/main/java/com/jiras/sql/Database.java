@@ -1,12 +1,6 @@
 package com.jiras.sql;
-
-import javax.xml.transform.Result;
 import java.sql.*;
 
-/**
- *
- * @author sqlitetutorial.net
- */
 public class Database {
     Connection conn;
     public ResultSet selectAll(String sql) {
@@ -41,8 +35,7 @@ public class Database {
     }
     public PreparedStatement initQuery(String sql) {
         try {
-            PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
-            return stmt;
+            return conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -57,7 +50,7 @@ public class Database {
 
     }
     public Database() {
-        Connection conn = null;
+        Connection conn;
         try {
             // db parameters
             String url = "jdbc:sqlite:./main.db";

@@ -26,20 +26,20 @@ import java.util.Map;
 import java.util.Objects;
 
 public class UserData {
-    Database db;
-    HashMap<Integer, Playlist> playlists;
-    HashMap<Integer, Album> albums;
-    HashMap<Integer, Track> tracks;
-    HashMap<Integer, MusicFolder> musicFolders;
+    private Database db;
+    private HashMap<Integer, Playlist> playlists;
+    private HashMap<Integer, Album> albums;
+    private HashMap<Integer, Track> tracks;
+    private HashMap<Integer, MusicFolder> musicFolders;
 
 
-    public UserData(Database db) throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
+    public UserData(Database db) throws SQLException {
         this.db = db;
 
         sync();
 
     }
-    public void deleteMusicFolder(String path) throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
+    public void deleteMusicFolder(String path) throws SQLException {
         PreparedStatement deleteStmt = db.initQuery("DELETE FROM musicFolders WHERE path = ?");
         deleteStmt.setString(1, path);
         db.executeUpdate(deleteStmt);
@@ -47,14 +47,14 @@ public class UserData {
         sync();
     }
 
-    public void addMusicFolder(String path) throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
+    public void addMusicFolder(String path) throws SQLException {
         PreparedStatement insertStmt = db.initQuery("INSERT INTO musicFolders(path) VALUES (?)");
         insertStmt.setString(1, path);
         db.executeUpdate(insertStmt);
         //resync
         sync();
     }
-    public Playlist addPlaylist(String name) throws URISyntaxException, SQLException, MalformedURLException {
+    public Playlist addPlaylist(String name) throws SQLException {
         PreparedStatement insertStmt = db.initQuery("INSERT INTO playlists(name) VALUES (?)");
         insertStmt.setString(1, name);
         int id = db.executeUpdate(insertStmt);
@@ -65,7 +65,7 @@ public class UserData {
         return playlist;
     }
 
-    public void toggleSongPlaylist(Integer songID, Integer playlistID) throws SQLException, MalformedURLException, URISyntaxException {
+    public void toggleSongPlaylist(Integer songID, Integer playlistID) throws SQLException {
         PreparedStatement playlistSongStmt = db.initQuery("SELECT id FROM playlistSongs WHERE songID = ? AND playlistID = ?");
         playlistSongStmt.setInt(1, songID);
         playlistSongStmt.setInt(2, playlistID);
@@ -77,7 +77,7 @@ public class UserData {
             db.executeUpdate(insertStmt);
 
         } else {
-            Integer id = duplicates.getInt("id");
+            int id = duplicates.getInt("id");
             PreparedStatement deleteStmt = db.initQuery("DELETE FROM playlistSongs WHERE id = ?");
             deleteStmt.setInt(1, id);
             db.executeUpdate(deleteStmt);
@@ -100,10 +100,7 @@ public class UserData {
     public Track getIndexedTrack(Integer id) {
         return tracks.get(id);
     }
-    public Playlist getNewestPlaylist() {
-        return this.playlists.get(this.playlists.size() - 1);
-    }
-    private void sync() throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
+    private void sync() throws SQLException {
         syncFolders();
         syncAlbums();
         syncTracks();
@@ -140,15 +137,15 @@ public class UserData {
             }
         }
     }
-    private void syncTracks() throws SQLException, MalformedURLException, URISyntaxException {
+    private void syncTracks() throws SQLException {
         this.tracks = new HashMap<>();
 
         //load all tracks into Track objects with list
         ResultSet dbTracks = db.selectAll("SELECT id, path, name, year, artist, albumID FROM songs");
         while(dbTracks.next()) {
             String path = dbTracks.getString("path");
-            Integer id = dbTracks.getInt("id");
-            Integer albumID = dbTracks.getInt("albumID");
+            int id = dbTracks.getInt("id");
+            int albumID = dbTracks.getInt("albumID");
 
             //check if file still exists
             if(new File(path).exists()) {

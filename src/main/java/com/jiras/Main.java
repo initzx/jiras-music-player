@@ -1,26 +1,17 @@
 package com.jiras;
 
-import com.jiras.music.Album;
-import com.jiras.music.Track;
 import com.jiras.sql.Database;
 import com.jiras.user.UserData;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.media.Media;
-import javafx.stage.Stage;
-import org.apache.tika.exception.TikaException;
-import org.xml.sax.SAXException;
 
-import java.io.File;
+import javafx.stage.Stage;
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Paths;
 import java.sql.SQLException;
-import java.util.ArrayList;
 
 
 public class Main extends Application {
@@ -45,7 +36,7 @@ public class Main extends Application {
         launch(args);
     }
 
-    private void loadController(MusicPlayerController controller) throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
+    private void loadController(MusicPlayerController controller) throws SQLException {
         db = new Database();
 
         UserData userData = new UserData(db);
