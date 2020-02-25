@@ -3,8 +3,8 @@ package com.jiras.music;
 import java.util.ArrayList;
 
 public abstract class TrackList {
-    String name;
-    ArrayList<Track> tracks;
+    protected String name;
+    protected ArrayList<Track> tracks;
 
     public TrackList(String name) {
         this.name = name;

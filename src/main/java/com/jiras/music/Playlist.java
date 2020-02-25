@@ -1,14 +1,7 @@
 package com.jiras.music;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class Playlist extends TrackList {
     private String path;
-
-    public Playlist() {
-        super("Unamed Playlist");
-    }
 
     public Playlist(String name, String path) {
         super(name);

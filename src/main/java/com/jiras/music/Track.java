@@ -16,15 +16,7 @@ public class Track {
     private String artist = "Unknown artist";
     private String album = "Unknown album";
 
-//    private Track(Media media, String year, String artist, String album) {
-//        this.media = media;
-//        this.path = media.getSource();
-//        this.year = year;
-//        this.artist = artist;
-//        this.album = album;
-//    }
-
-    private Track(Media media, String defaultTitle) {
+    public Track(Media media, String defaultTitle) {
         // it is required to initialize media with MediaPlayer to get the duration
         new MediaPlayer(media);
 
@@ -52,10 +44,6 @@ public class Track {
                 }
             }
         });
-    }
-
-    public static Track loadTrack(Media media, String defaultTitle) {
-        return new Track(media, defaultTitle);
     }
 
     public Media getMedia() {

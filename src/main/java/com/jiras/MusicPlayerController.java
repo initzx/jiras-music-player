@@ -29,36 +29,23 @@ import java.util.ResourceBundle;
 
 public class MusicPlayerController implements Initializable {
 
-    @FXML
-    private ListView<Playlist> playlists;
+    @FXML private ListView<Playlist> playlists;
 
-    @FXML
-    private TableView<Track> tracks;
+    @FXML private TableView<Track> tracks;
 
-    @FXML
-    private TableColumn<Track, String> artistCol;
-    @FXML
-    private TableColumn<Track, String> albumCol;
-    @FXML
-    private TableColumn<Track, String> trackCol;
-    @FXML
-    private TableColumn<Track, String> durationCol;
+    @FXML private TableColumn<Track, String> artistCol;
+    @FXML private TableColumn<Track, String> albumCol;
+    @FXML private TableColumn<Track, String> trackCol;
+    @FXML private TableColumn<Track, String> durationCol;
 
-    @FXML
-    private GridPane stage;
-    @FXML
-    private FontAwesomeIconView playIcon;
+    @FXML private GridPane stage;
+    @FXML private FontAwesomeIconView playIcon;
 
-    @FXML
-    private Text trackTitle;
-    @FXML
-    private Text artist;
-    @FXML
-    private ProgressBar progressBar;
-    @FXML
-    private Text timeElapsed;
-    @FXML
-    private Text duration;
+    @FXML private Text trackTitle;
+    @FXML private Text artist;
+    @FXML private ProgressBar progressBar;
+    @FXML private Text timeElapsed;
+    @FXML private Text duration;
 
     private UserData userData;
     private Queue<Track> queue;
@@ -84,45 +71,61 @@ public class MusicPlayerController implements Initializable {
     }
 
     public void initializePlayer() {
-        System.out.println("Loading playlist");
-        playlists.getItems().clear();
-        tracks.getItems().clear();
+        System.out.println("Initializing player");
+        initializePlaylistsChooser();
         initializeTracksTable();
+    }
+
+    private void initializePlaylistsChooser() {
+        playlists.getItems().clear();
+        // add all playlists to the side chooser
         for (Playlist playlist : userData.getAllPlaylists()) {
             playlists.getItems().add(playlist);
         }
+
         playlists.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Playlist>) change -> {
             Playlist playlist = change.getList().get(0);
-            System.out.println(playlist);
+            // tracks are put in the tracks table here
             tracks.getItems().setAll(playlist.getTracks());
             currentSelPlaylist = playlist;
         });
     }
 
     private void initializeTracksTable() {
+        tracks.getItems().clear();
+
+        // columns are initialized with the respective **field names** of the Track object
         artistCol.setCellValueFactory(new PropertyValueFactory<>("artist"));
         albumCol.setCellValueFactory(new PropertyValueFactory<>("album"));
         trackCol.setCellValueFactory(new PropertyValueFactory<>("title"));
         durationCol.setCellValueFactory(trackStringCellDataFeatures -> {
+            // duration must be formatted
             int seconds = (int) Math.round(trackStringCellDataFeatures.getValue().getMedia().getDuration().toSeconds());
             return new ReadOnlyStringWrapper(String.format("%02d:%02d", seconds / 60, seconds % 60));
+
         });
+
+        // if the user clicks on a track
         tracks.getSelectionModel().selectedItemProperty().addListener(change -> {
             Track selected = tracks.getSelectionModel().getSelectedItem();
             if (selected == null)
                 return;
 
+            // replace the current playing song
             if (player != null) {
                 queue.reset();
                 stop(StopReason.REPLACED);
             }
+
             Track[] tracks = currentSelPlaylist.getTracks();
-            boolean add = false;
+            boolean addFollowing = false;
             for (Track track : tracks) {
-                if (!add && track == selected) {
-                    add = true;
+                // iterate over the playlist until we find our selected track in the playlist
+                if (!addFollowing && track == selected) {
+                    addFollowing = true;
                 }
-                if (add) {
+                // add the song and all after it if we have found our selected track
+                if (addFollowing) {
                     queue(track);
                 }
             }
@@ -134,8 +137,6 @@ public class MusicPlayerController implements Initializable {
         player = new MediaPlayer(current.getMedia());
         player.setOnPlaying(this::onPlaying);
         player.setOnPaused(this::onPaused);
-//        player.setOnStopped(this::onStopped);
-//        player.setOnEndOfMedia(this::onEnd);
         player.setOnStopped(this::onFinished);
         player.setOnEndOfMedia(this::onFinished);
         player.play();
@@ -145,15 +146,15 @@ public class MusicPlayerController implements Initializable {
         this.queue.add(track);
 
         if (player == null || stopReason == StopReason.REPLACED ) {
-            if (stopReason == StopReason.REPLACED)
+            if (stopReason == StopReason.REPLACED) // the user clicked on a new track
                 stopReason = StopReason.CONTINUE;
             play(queue.next());
         }
     }
 
     private void onPlaying() {
+        // here the actual player is updated in terms of appearance
         playIcon.setGlyphName("PAUSE");
-        System.out.println("playing " + current.getTitle());
         int seconds = (int) Math.round(player.getTotalDuration().toSeconds());
         duration.setText(String.format("%02d:%02d", seconds / 60, seconds % 60));
         trackTitle.setText(current.getTitle());
@@ -168,22 +169,6 @@ public class MusicPlayerController implements Initializable {
     private void onPaused() {
         playIcon.setGlyphName("PLAY");
     }
-
-//    private void onStopped() {
-//        System.out.println("onStopped " + current.getTitle());
-//        if (next != null)
-//            play(next);
-//        else
-//            endQueue();
-//    }
-//
-//    private void onEnd() {
-//        System.out.println("ended " + current.getTitle());
-//        if (!queue.isAtEnd())
-//            play(queue.next());
-//        else
-//            endQueue();
-//    }
 
     private void onFinished() {
         switch (stopReason) {
@@ -225,13 +210,11 @@ public class MusicPlayerController implements Initializable {
     private void stop(StopReason reason) {
         if (player == null)
             return;
-        System.out.println("stopped " + current.getTitle());
         stopReason = reason;
         player.stop();
     }
 
-    @FXML
-    private void playPause() {
+    @FXML private void playPause() {
         if (player == null)
             return;
         MediaPlayer.Status status = player.getStatus();
@@ -244,28 +227,28 @@ public class MusicPlayerController implements Initializable {
         }
     }
 
-    @FXML
-    private void skip() {
+    @FXML private void skip() {
         if (player == null)
             return;
         next = queue.next();
         stop(StopReason.SKIPPED);
     }
 
-    @FXML
-    private void prev() {
+    @FXML private void prev() {
         if (player == null)
             return;
         if (player.getCurrentTime().greaterThan(new Duration(1000))) {
             player.seek(Duration.ZERO);
             return;
         }
+
         next = queue.prev();
         stop(StopReason.SKIPPED);
     }
 
-    @FXML
-    private void importSongs() {
+    @FXML private void importSongs() {
+        // if the user clicks on the import songs button
+
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open Resource File");
         File selected = directoryChooser.showDialog(stage.getScene().getWindow());

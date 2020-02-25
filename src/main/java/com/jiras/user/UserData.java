@@ -13,12 +13,10 @@ import java.util.Objects;
 public class UserData {
     public final static String DEFAULT_CONF_PATH = "music_dir.conf";
 
-    String musicFolderPath;
-    HashMap<String, Playlist> playlists;
+    private HashMap<String, Playlist> playlists;
 
-    public UserData(String musicFolderPath) {
+    private UserData(String musicFolderPath) {
         this.playlists = new HashMap<>();
-        this.musicFolderPath = musicFolderPath;
 
         for (Playlist playlist: recursiveImportFromDir(musicFolderPath)) {
             playlists.put(playlist.getName(), playlist);
@@ -63,24 +61,28 @@ public class UserData {
 
     public void addPlaylist(Playlist playlist) {
         this.playlists.put(playlist.getName(), playlist);
-        // TODO save playlist to db
     }
 
     private ArrayList<Playlist> recursiveImportFromDir(String path) {
+        // start music folder
         File musicDir = new File(path);
         ArrayList<Playlist> playlists = new ArrayList<>();
 
         Playlist playlist = new Playlist(musicDir.getName(), musicDir.getPath());
         if (musicDir.listFiles() == null)
+            // if no files are found in this folder, return the playlist objects which have been found
             return playlists;
 
         for (File file : musicDir.listFiles()) {
             if (file.isDirectory()) {
+                // import is called again here if one of the files is a directory
                 playlists.addAll(recursiveImportFromDir(file.getAbsolutePath()));
             }
+            // add only if it's mp3
             else if (file.getName().endsWith(".mp3")) {
+                // added to a playlist object which later gets added to an ArrayList containing multiple playlists
                 playlist.addTrack(
-                        Track.loadTrack(new Media(Paths.get(file.getAbsolutePath()).toUri().toString()),
+                        new Track(new Media(Paths.get(file.getAbsolutePath()).toUri().toString()),
                         file.getName().replace(".mp3", ""))
                 );
             }
