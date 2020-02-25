@@ -344,7 +344,7 @@ public class MusicPlayerController implements Initializable {
     }
 
     @FXML
-    private void removeMusicFolder() throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
+    private void removeMusicFolder() throws SQLException {
         MusicFolder musicFolder = musicFolders.getSelectionModel().getSelectedItem();
         if(musicFolder != null) {
             userData.deleteMusicFolder(musicFolder.toString());
@@ -352,7 +352,7 @@ public class MusicPlayerController implements Initializable {
         }
     }
     @FXML
-    private void addMusicFolder() throws SQLException, IOException, URISyntaxException, TikaException, SAXException {
+    private void addMusicFolder() throws SQLException {
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open Resource File");
         File selected = directoryChooser.showDialog(stage.getScene().getWindow());

@@ -12,8 +12,13 @@ public class Database {
         }
         return null;
     }
-    public ResultSet executeStmt(PreparedStatement stmt) throws SQLException {
-        return stmt.executeQuery();
+    public ResultSet executeStmt(PreparedStatement stmt)  {
+        try {
+            return stmt.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
     public int executeUpdate(PreparedStatement stmt) {
         try {

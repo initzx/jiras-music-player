@@ -1,8 +1,5 @@
 package com.jiras.music;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-
 public class Playlist extends TrackList {
     Integer id;
     public Playlist(Integer id, String name) {

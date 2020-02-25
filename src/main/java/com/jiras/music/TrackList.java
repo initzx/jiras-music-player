@@ -11,7 +11,7 @@ public abstract class TrackList {
         this.tracks = new ArrayList<>();
     }
 
-    public void  addTrack(Track track) {
+    public void addTrack(Track track) {
         this.tracks.add(track);
     }
 
