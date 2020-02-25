@@ -1,16 +1,14 @@
 package com.jiras.music;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.ListIterator;
 
 public class Queue<T> {
     public ArrayList<T> queue;
-    private int head;
+    private int nextIndex;
 
     public Queue(T... items) {
-        head = 0;
+        nextIndex = 0;
         queue = new ArrayList<>();
         addAll(items);
     }
@@ -24,24 +22,24 @@ public class Queue<T> {
     }
 
     public T next() {
-        T item = head >= queue.size() ? null : queue.get(head);
-        head++;
+        T item = nextIndex >= queue.size() ? null : queue.get(nextIndex);
+        nextIndex++;
         return item;
     }
 
     public T prev() {
-        head -= 2;
-        T item = head >= queue.size() || head < 0 ? null : queue.get(head);
-        head++;
+        nextIndex -= 2;
+        T item = nextIndex >= queue.size() || nextIndex < 0 ? null : queue.get(nextIndex);
+        nextIndex++;
         return item;
     }
 
     public boolean isAtEnd() {
-        return head == queue.size();
+        return nextIndex == queue.size();
     }
 
     public void reset() {
         queue.clear();
-        head = 0;
+        nextIndex = 0;
     }
 }

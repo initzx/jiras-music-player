@@ -134,8 +134,6 @@ public class MusicPlayerController implements Initializable {
         player = new MediaPlayer(current.getMedia());
         player.setOnPlaying(this::onPlaying);
         player.setOnPaused(this::onPaused);
-//        player.setOnStopped(this::onStopped);
-//        player.setOnEndOfMedia(this::onEnd);
         player.setOnStopped(this::onFinished);
         player.setOnEndOfMedia(this::onFinished);
         player.play();
@@ -168,22 +166,6 @@ public class MusicPlayerController implements Initializable {
     private void onPaused() {
         playIcon.setGlyphName("PLAY");
     }
-
-//    private void onStopped() {
-//        System.out.println("onStopped " + current.getTitle());
-//        if (next != null)
-//            play(next);
-//        else
-//            endQueue();
-//    }
-//
-//    private void onEnd() {
-//        System.out.println("ended " + current.getTitle());
-//        if (!queue.isAtEnd())
-//            play(queue.next());
-//        else
-//            endQueue();
-//    }
 
     private void onFinished() {
         switch (stopReason) {

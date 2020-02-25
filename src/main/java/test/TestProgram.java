@@ -1,42 +1,37 @@
 package test;
 
-import com.jiras.music.Playlist;
 import com.jiras.music.Queue;
-import com.jiras.music.Track;
-import com.jiras.user.UserData;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.stage.Stage;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class TestProgram extends Application {
-    protected UserData userData;
-    protected Queue<Track> queue;
-    protected Playlist playlist;
+public class TestProgram {
+    protected Queue<Integer> queue;
+    protected ArrayList<Integer> playlist;
 
-    @BeforeClass
-    public static void setUp(){
-        launch();
-    }
-
-    @Override
-    public void start(Stage stage) {
-        Platform.exit();
-    }
+//    @BeforeClass
+//    public static void setUp(){
+//        launch();
+//    }
+//
+//    @Override
+//    public void start(Stage stage) {
+//        Platform.exit();
+//    }
 
     @Before
     public void before() {
-        userData = UserData.createUserDataFromConf();
         queue = new Queue<>();
-        playlist = userData.getPlaylist("Circles");
+        playlist = new ArrayList<>();
         queue.reset();
-        queue.addAll(playlist.getTracks());
+        for (int i=0; i<10; i++) {
+            queue.add(i);
+            playlist.add(i);
+        }
     }
 
     @Test
@@ -46,7 +41,7 @@ public class TestProgram extends Application {
 
     @Test
     public void testNext() {
-        assertEquals(queue.next(), playlist.getTracks()[0]);
+        assertEquals(queue.next(), playlist.get(0));
     }
 
     @Test
@@ -57,8 +52,10 @@ public class TestProgram extends Application {
 
     @Test
     public void testAllTracks() {
-        for (Track track: playlist.getTracks()) {
+        for (Integer track: playlist) {
             assertEquals(queue.next(), track);
         }
+        assertNull(queue.next());
+        assertEquals(queue.prev(), Integer.valueOf(playlist.size()-1));
     }
 }

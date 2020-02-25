@@ -8,7 +8,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.net.URL;
-import java.sql.SQLException;
 
 
 public class Main extends Application {
@@ -32,7 +31,7 @@ public class Main extends Application {
         launch(args);
     }
 
-    private void loadController(MusicPlayerController controller) throws SQLException {
+    private void loadController(MusicPlayerController controller) {
         UserData userData = UserData.createUserDataFromConf();
         controller.injectUserData(userData);
         controller.initializePlayer();
