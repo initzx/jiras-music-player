@@ -379,7 +379,7 @@ public class MusicPlayerController implements Initializable {
         songPlaylistContainer.setVisible(false);
     }
     @FXML
-    private void toggleSongPlaylist() throws URISyntaxException, SQLException, MalformedURLException {
+    private void toggleSongPlaylist() throws SQLException {
         SongPlaylist songPlaylist = songPlaylists.getSelectionModel().getSelectedItem();
         if(songPlaylist != null) {
             userData.toggleSongPlaylist(songPlaylist.getSongID(), songPlaylist.getPlaylistID());
@@ -398,7 +398,7 @@ public class MusicPlayerController implements Initializable {
         }
     }
     @FXML
-    private void createPlaylist() throws MalformedURLException, SQLException, URISyntaxException {
+    private void createPlaylist() throws SQLException {
         TextInputDialog dialog = new TextInputDialog("");
         dialog.setTitle("Ny playlist");
         dialog.setHeaderText("Playlist");
@@ -410,6 +410,5 @@ public class MusicPlayerController implements Initializable {
             Playlist playlist = this.userData.addPlaylist(result.get());
             playlists.getItems().add(playlist);
         }
-        //reload playlists
     }
 }
