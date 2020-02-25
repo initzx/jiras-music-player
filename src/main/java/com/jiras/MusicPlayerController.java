@@ -237,6 +237,9 @@ public class MusicPlayerController implements Initializable {
     @FXML private void prev() {
         if (player == null)
             return;
+
+        // if we are in the middle of a song, and we click the previous button
+        // the track should then rewind to the beginning instead of skipping to the previous track
         if (player.getCurrentTime().greaterThan(new Duration(1000))) {
             player.seek(Duration.ZERO);
             return;
