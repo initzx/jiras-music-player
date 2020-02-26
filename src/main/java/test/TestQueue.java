@@ -9,19 +9,9 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-public class TestProgram {
+public class TestQueue {
     protected Queue<Integer> queue;
     protected ArrayList<Integer> playlist;
-
-//    @BeforeClass
-//    public static void setUp(){
-//        launch();
-//    }
-//
-//    @Override
-//    public void start(Stage stage) {
-//        Platform.exit();
-//    }
 
     @Before
     public void before() {
