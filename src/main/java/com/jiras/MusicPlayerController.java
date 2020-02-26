@@ -5,7 +5,6 @@ import com.jiras.controls.SongPlaylist;
 import com.jiras.music.*;
 import com.jiras.user.UserData;
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.ListChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
