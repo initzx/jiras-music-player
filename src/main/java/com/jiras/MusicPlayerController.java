@@ -21,13 +21,8 @@ import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Callback;
 import javafx.util.Duration;
-import org.apache.tika.exception.TikaException;
-import org.xml.sax.SAXException;
 
 import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -80,6 +75,8 @@ public class MusicPlayerController implements Initializable {
     @FXML
     private AnchorPane songPlaylistContainer;
 
+    @FXML
+    private Button musicFolderBtn;
 
     private UserData userData;
     private Queue<Track> queue;
@@ -120,9 +117,12 @@ public class MusicPlayerController implements Initializable {
             playlists.getItems().add(playlist);
         }
         albums.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Album>) change -> {
-            TrackList to = change.getList().get(0);
-            if(to != null) {
-                setTrackList(to, "album");
+            if(change.getList().size() > 0) {
+                TrackList to = change.getList().get(0);
+                if(to != null) {
+                    setTrackList(to, "album");
+                }
+
             }
         });
         playlists.getSelectionModel().getSelectedItems().addListener((ListChangeListener<Playlist>) change -> {
@@ -353,17 +353,19 @@ public class MusicPlayerController implements Initializable {
     }
     @FXML
     private void addMusicFolder() throws SQLException {
+        String oldText = musicFolderBtn.getText();
+        musicFolderBtn.setText("Indlæser musik...");
         DirectoryChooser directoryChooser = new DirectoryChooser();
         directoryChooser.setTitle("Open Resource File");
         File selected = directoryChooser.showDialog(stage.getScene().getWindow());
         if(selected!=null) {
+            //save text of button
             String path = selected.getPath();
-
             userData.addMusicFolder(path);
-
             initializePlayer();
-
         }
+
+        musicFolderBtn.setText(oldText);
     }
     @FXML
     private void showPlaylistContainer(Integer songID, ArrayList<Integer> addedPlaylists) {

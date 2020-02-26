@@ -139,7 +139,7 @@
                               </StackPane>
                            </children>
                         </GridPane>
-                        <Button mnemonicParsing="false" onAction="#toggleFolderContainer" style="-fx-background-color: FFFFFA;" text="Musik Mapper" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
+                        <Button fx:id="musicFolderBtn" mnemonicParsing="false" onAction="#toggleFolderContainer" style="-fx-background-color: FFFFFA;" text="Musik Mapper" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
                      </children>
                   </GridPane>
                </children>
